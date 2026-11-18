@@ -1,0 +1,825 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RelevoMed · El estado de tu paciente, al día</title>
+<meta name="description" content="RelevoMed reúne el censo, el pase de guardia y los pendientes del servicio en el teléfono. Todo el equipo ve lo mismo, al día.">
+<meta name="theme-color" content="#111A3D">
+<!-- Lo que se ve al compartir el enlace por WhatsApp. Al pasar a relevomed.com, cambiar las dos direcciones de abajo. -->
+<meta property="og:url" content="https://velcia92-design.github.io/relevomed/">
+<meta property="og:image" content="https://velcia92-design.github.io/relevomed/img/censo-hd.jpg">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="es_VE">
+<meta property="og:site_name" content="RelevoMed">
+<meta property="og:title" content="RelevoMed · El estado de tu paciente, al día">
+<meta property="og:description" content="El censo, el pase de guardia y los pendientes del servicio en el teléfono. Todo el equipo ve lo mismo, al día.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='11' fill='%231B2A5E'/%3E%3Cpath d='M11 25a9 9 0 0 1 15-9.5' fill='none' stroke='%239DB2FF' stroke-width='3.2' stroke-linecap='round'/%3E%3Cpath d='M29 15a9 9 0 0 1-15 9.5' fill='none' stroke='%23fff' stroke-width='3.2' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  /* Mismos colores que la app («Firma neurológica»): papel claro, tinta y azul bolígrafo. */
+  :root {
+    --bg: #F3F4F0; --bg-alt: #ECEEE8; --card: #FFFFFF; --text: #16201C; --muted: #55605A; --border: #DADDD5;
+    --accent: #2446C8; --accent-bg: #E6EBFB;
+    --ink: #111A3D; --ink-2: #1B2A5E; --on-ink: #FFFFFF; --on-ink-muted: #C3CBEA; --ink-line: rgba(255,255,255,.14);
+    --critical: #C2182F; --ok: #1A7443;
+    --wa: #128C4B; --wa-hover: #0E7340;
+    --frame: #0B0F1C; --dot: rgba(22, 32, 28, .07); --net: 36, 70, 200; --net-hub: 0, 132, 160; --net-text: 0.26; --shadow: 0 30px 60px -28px rgba(17, 26, 61, .55);
+    --radius: 20px; --max: 1120px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0A0D16; --bg-alt: #0E1220; --card: #121725; --text: #E9ECF5; --muted: #A0A8BE; --border: #232A3D;
+      --accent: #9DB2FF; --accent-bg: #1A2350; --ink: #070A14; --ink-2: #141C3A;
+      --critical: #FF7D8C; --ok: #6AD59A; --frame: #000; --dot: rgba(233, 236, 245, .05); --net: 157, 178, 255; --net-hub: 110, 231, 255; --net-text: 0.4; --shadow: 0 30px 60px -28px rgba(0,0,0,.9);
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 18px; line-height: 1.55; -webkit-font-smoothing: antialiased;
+  }
+  img { display: block; max-width: 100%; height: auto; }
+  a { color: var(--accent); }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 8px; }
+  .skip { position: absolute; left: -999px; top: 8px; background: var(--card); color: var(--text); padding: 10px 14px; border-radius: 10px; z-index: 20; }
+  .skip:focus { left: 16px; }
+  .wrap { max-width: var(--max); margin: 0 auto; padding-inline: 16px; }
+  h1, h2, h3 { line-height: 1.1; margin: 0; letter-spacing: -.015em; }
+  h1 { font-size: clamp(2.4rem, 7vw, 4.2rem); }
+  h2 { font-size: clamp(1.8rem, 4.6vw, 2.8rem); }
+  h3 { font-size: 1.2rem; line-height: 1.25; }
+  p { margin: 0; }
+  .eyebrow { display: inline-block; font-size: 14px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; }
+
+  /* Botones */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 56px; padding: 0 26px; border-radius: 999px; font: inherit; font-weight: 700; text-decoration: none; border: 0; cursor: pointer; transition: transform .15s ease, background-color .15s ease; }
+  .btn:active { transform: scale(.98); }
+  .btn-wa { background: var(--wa); color: #fff; box-shadow: 0 10px 24px -12px rgba(18, 140, 75, .8); }
+  .btn-wa:hover { background: var(--wa-hover); }
+  .btn svg { width: 22px; height: 22px; flex: none; }
+  .link { color: inherit; font-weight: 700; text-underline-offset: 5px; min-height: 44px; display: inline-flex; align-items: center; padding: 0 6px; }
+
+  /* Encabezado sobre la portada oscura */
+  header { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--ink) 86%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--ink-line); }
+  .bar { display: flex; align-items: center; justify-content: space-between; min-height: 66px; gap: 12px; }
+  .logo { display: inline-flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.25rem; color: var(--on-ink); text-decoration: none; }
+  .logo svg { width: 36px; height: 36px; flex: none; border-radius: 11px; box-shadow: 0 0 0 1px var(--ink-line); }
+  .bar .btn { min-height: 44px; padding: 0 18px; font-size: 16px; }
+
+  /* Portada */
+  .hero { background: radial-gradient(1200px 600px at 85% -10%, #2E47B8 0%, transparent 60%), radial-gradient(800px 500px at -10% 110%, #1C2E7A 0%, transparent 55%), var(--ink); color: var(--on-ink); overflow: hidden; }
+  .hero-grid { display: grid; gap: 48px; align-items: center; padding-block: 48px 0; }
+  .hero .eyebrow { color: #9DB2FF; }
+  .hero .lead { font-size: 1.25rem; color: var(--on-ink-muted); margin-top: 20px; max-width: 32ch; }
+  .actions { display: flex; flex-wrap: wrap; gap: 12px 14px; align-items: center; margin-top: 30px; }
+  .hero .note { font-size: 15px; color: var(--on-ink-muted); margin-top: 14px; }
+  .facts { list-style: none; padding: 0; margin: 28px 0 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .facts li { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--ink-line); background: rgba(255,255,255,.06); border-radius: 999px; padding: 7px 14px; font-size: 15px; font-weight: 700; }
+  .facts svg { width: 18px; height: 18px; color: #6AD59A; }
+
+  /* Teléfonos con capturas reales */
+  .phone { position: relative; background: var(--frame); border-radius: 46px; padding: 11px; box-shadow: var(--shadow), inset 0 0 0 1px rgba(255,255,255,.08); }
+  .phone img { border-radius: 36px; width: 100%; }
+  .phones { position: relative; display: flex; justify-content: center; align-items: flex-end; padding-bottom: 0; min-height: 420px; }
+  .phones .phone { width: min(300px, 70vw); }
+  .phones .back { position: absolute; width: min(250px, 58vw); left: 50%; bottom: 60px; transform: translateX(-112%) rotate(-7deg); opacity: .96; }
+  .phones .front { transform: translateX(18%); margin-bottom: -90px; z-index: 2; }
+  .hero-fade { height: 90px; background: var(--bg); }
+
+  /* Secciones */
+  section { padding-block: 72px; }
+  .section-head { max-width: 46ch; margin-bottom: 36px; }
+  .section-head p { margin-top: 14px; color: var(--muted); font-size: 1.1rem; }
+  .center { text-align: center; margin-inline: auto; }
+
+  /* Bloques de texto + captura, alternados */
+  .show { display: grid; gap: 36px; align-items: center; }
+  .show + .show { margin-top: 88px; }
+  .show .phone { width: min(300px, 78vw); margin-inline: auto; }
+  .show p.desc { color: var(--muted); margin-top: 14px; font-size: 1.1rem; }
+  .checks { list-style: none; padding: 0; margin: 22px 0 0; display: grid; gap: 12px; }
+  .checks li { display: flex; gap: 12px; align-items: flex-start; }
+  .checks svg { width: 24px; height: 24px; color: var(--ok); flex: none; margin-top: 2px; }
+  .tag { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: 15px; color: var(--accent); background: var(--accent-bg); border-radius: 999px; padding: 6px 14px; margin-bottom: 16px; }
+  .tag svg { width: 18px; height: 18px; }
+
+  /* Hoy frente a RelevoMed (idea de TigerConnect y Doctolib Connect) */
+  .compare { display: grid; gap: 12px; }
+  .compare .row { display: grid; gap: 0; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: var(--card); }
+  .compare .cell { display: flex; gap: 12px; align-items: flex-start; padding: 16px 18px; font-size: 16.5px; }
+  .compare .cell svg { width: 22px; height: 22px; flex: none; margin-top: 2px; }
+  .compare .before { color: var(--muted); background: var(--bg-alt); }
+  .compare .before svg { color: var(--critical); }
+  .compare .after svg { color: var(--ok); }
+  .compare .after { font-weight: 700; }
+  .compare .head { display: none; }
+  .label-sm { display: block; font-size: 12.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 2px; }
+  .before .label-sm { color: var(--critical); }
+  .after .label-sm { color: var(--ok); }
+
+  /* Una guardia, hora por hora (idea de TigerConnect: «un día en la vida») */
+  .timeline { list-style: none; padding: 0; margin: 0; position: relative; display: grid; gap: 0; }
+  .timeline::before { content: ""; position: absolute; left: 31px; top: 8px; bottom: 8px; width: 2px; background: var(--border); }
+  .timeline li { position: relative; display: grid; grid-template-columns: 64px 1fr; gap: 16px; padding-block: 14px; }
+  .timeline time { position: relative; z-index: 1; justify-self: center; align-self: start; background: var(--accent); color: #fff; font-weight: 700; font-size: 14px; border-radius: 999px; padding: 4px 8px; font-variant-numeric: tabular-nums; }
+  .timeline li.alarm time { background: var(--critical); }
+  .timeline h3 { font-size: 1.1rem; }
+  .timeline p { color: var(--muted); margin-top: 4px; font-size: 16.5px; }
+  .timeline .card { padding: 18px 20px; }
+  .timeline li.alarm .card { border-color: var(--critical); border-width: 2px; }
+  .small-note { font-size: 14px; color: var(--muted); margin-top: 14px; }
+
+  /* Para cada persona del servicio (idea de Accurx: «¿quién eres?») */
+  .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+  .tabs button { font: inherit; font-weight: 700; font-size: 16px; min-height: 48px; padding: 0 18px; border-radius: 999px; border: 1px solid var(--border); background: var(--card); color: var(--text); cursor: pointer; }
+  .tabs button[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+  @media (prefers-color-scheme: dark) { .tabs button[aria-selected="true"], .timeline time { color: #0A0D16; } .timeline li.alarm time { color: #fff; background: #B62A3C; } }
+  .panel { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 26px; }
+  .panel h3 { font-size: 1.35rem; }
+  .panel .checks { margin-top: 16px; }
+
+  /* Funciones */
+  .grid { display: grid; gap: 14px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; }
+  .card p { color: var(--muted); margin-top: 8px; font-size: 16.5px; }
+  .icon { width: 46px; height: 46px; border-radius: 13px; background: var(--accent-bg); color: var(--accent); display: grid; place-items: center; margin-bottom: 16px; }
+  .icon svg { width: 24px; height: 24px; }
+
+  /* Seguridad: banda oscura */
+  .band { background: var(--ink); color: var(--on-ink); border-radius: 32px; padding: 44px 22px; position: relative; overflow: hidden; }
+  .band::before { content: ""; position: absolute; inset: -40% -20% auto auto; width: 520px; height: 520px; background: radial-gradient(closest-side, rgba(46,71,184,.55), transparent); pointer-events: none; }
+  .band > * { position: relative; }
+  .band .section-head p { color: var(--on-ink-muted); }
+  .band .card { background: rgba(255,255,255,.06); border-color: var(--ink-line); }
+  .band .card p { color: var(--on-ink-muted); }
+  .band .icon { background: rgba(157,178,255,.16); color: #C9D5FF; }
+
+  /* Cómo empezar */
+  .steps { list-style: none; padding: 0; margin: 0; display: grid; gap: 14px; counter-reset: paso; }
+  .steps li { counter-increment: paso; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 24px 24px 82px; position: relative; }
+  .steps li::before { content: counter(paso); position: absolute; left: 24px; top: 22px; width: 40px; height: 40px; border-radius: 50%; background: var(--accent); color: #fff; display: grid; place-items: center; font-weight: 700; }
+  @media (prefers-color-scheme: dark) { .steps li::before { color: #0A0D16; } }
+  .steps p { color: var(--muted); margin-top: 6px; font-size: 16.5px; }
+
+  /* Preguntas */
+  .faq { display: grid; gap: 10px; max-width: 780px; margin-inline: auto; }
+  .faq details { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 0 22px; }
+  .faq summary { cursor: pointer; font-weight: 700; min-height: 60px; display: flex; align-items: center; justify-content: space-between; gap: 12px; list-style: none; }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after { content: "+"; font-size: 1.6rem; color: var(--accent); line-height: 1; flex: none; }
+  .faq details[open] summary::after { content: "−"; }
+  .faq details p { color: var(--muted); padding-bottom: 20px; }
+
+  /* Cierre */
+  .final { background: radial-gradient(900px 420px at 50% 0%, #2E47B8 0%, transparent 65%), var(--ink); color: var(--on-ink); text-align: center; border-radius: 32px; padding: 64px 22px; }
+  .final p { color: var(--on-ink-muted); margin: 16px auto 0; max-width: 40ch; font-size: 1.15rem; }
+  .final .actions { justify-content: center; }
+
+  /* Quién la hizo */
+  .author { max-width: 640px; margin-inline: auto; text-align: center; }
+  .author .big { font-size: clamp(1.4rem, 3.4vw, 1.9rem); font-weight: 700; line-height: 1.3; margin-top: 6px; }
+  .author p.muted { color: var(--muted); margin-top: 14px; }
+
+  footer { border-top: 1px solid var(--border); padding-block: 32px 44px; font-size: 15px; color: var(--muted); margin-top: 24px; }
+  footer .wrap { display: grid; gap: 12px; }
+  footer nav { display: flex; gap: 20px; flex-wrap: wrap; }
+  footer .logo { color: var(--text); font-size: 1.05rem; }
+  footer .logo svg { width: 28px; height: 28px; }
+
+  /* Tableta */
+  @media (min-width: 720px) {
+    .grid.three, .steps { grid-template-columns: repeat(3, 1fr); }
+    .grid.two, .band .grid.four-up { grid-template-columns: repeat(2, 1fr); }
+    .compare .row { grid-template-columns: 1fr 1fr; }
+    .compare .head { display: grid; grid-template-columns: 1fr 1fr; border: 0; background: none; }
+    .compare .head .cell { padding-block: 0 4px; font-size: 14px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; background: none; }
+    .compare .row .label-sm { display: none; }
+    .timeline::before { left: 43px; }
+    .timeline li { grid-template-columns: 88px 1fr; }
+    .band { padding: 56px 44px; }
+    .phones { min-height: 520px; }
+    .phones .phone.front { width: 310px; }
+    .phones .back { width: 260px; transform: translateX(-118%) rotate(-7deg); }
+  }
+  /* Computadora */
+  @media (min-width: 980px) {
+    .hero-grid { grid-template-columns: 1.05fr .95fr; padding-block: 72px 0; min-height: 640px; }
+    .hero-grid > div:first-child { padding-bottom: 96px; }
+    .phones { min-height: 600px; }
+    .phones .phone.front { width: 320px; margin-bottom: -60px; }
+    .phones .back { width: 270px; bottom: 90px; }
+    .show { grid-template-columns: 1fr 1fr; gap: 72px; }
+    .show.flip > :first-child { order: 2; }
+    .grid.four { grid-template-columns: repeat(3, 1fr); }
+    .band .grid.four-up { grid-template-columns: repeat(4, 1fr); }
+    section { padding-block: 96px; }
+  }
+  /* ===== Movimiento y 3D ===== */
+  /* Portada: red neuronal en 3D que gira detrás (canvas), teléfonos inclinados en 3D que flotan. */
+  .hero { position: relative; isolation: isolate; }
+  .neuro { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+  .hero-grid { position: relative; z-index: 1; perspective: 1600px; }
+  .glow { color: #B4C3FF; }
+  /* Lo que gira en 3D no debe ensanchar la página en el teléfono. */
+  main { overflow-x: clip; }
+  .phones { transform-style: preserve-3d; transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); transition: transform .6s cubic-bezier(.2, .8, .2, 1); animation: enter 1.4s cubic-bezier(.16, 1, .3, 1) both; }
+  .phones .front { transform: translateX(14%) rotateY(-16deg) rotateX(5deg) translateZ(40px); animation: float 8s ease-in-out infinite; }
+  .phones .back { transform: translateX(-108%) rotateY(20deg) rotateZ(-3deg) translateZ(-80px); animation: float 8s ease-in-out -4s infinite; }
+  .phone::after { content: ""; position: absolute; inset: 11px; border-radius: 36px; background: linear-gradient(115deg, rgba(255,255,255,.22), rgba(255,255,255,0) 38%); pointer-events: none; }
+  @keyframes float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -14px; } }
+  @keyframes enter { from { scale: .9; translate: 0 70px; } }
+  .hero-grid > div:first-child > * { animation: up 1s cubic-bezier(.16, 1, .3, 1) both; }
+  .hero-grid > div:first-child > :nth-child(2) { animation-delay: .06s; }
+  .hero-grid > div:first-child > :nth-child(3) { animation-delay: .12s; }
+  .hero-grid > div:first-child > :nth-child(4) { animation-delay: .18s; }
+  .hero-grid > div:first-child > :nth-child(n+5) { animation-delay: .24s; }
+  @keyframes up { from { translate: 0 26px; opacity: .15; } }
+
+  /* Capturas de cada sección: giran en 3D mientras bajas. */
+  .show .phone { transform: perspective(1200px) rotateY(-10deg) rotateX(4deg); }
+  .show.flip .phone { transform: perspective(1200px) rotateY(10deg) rotateX(4deg); }
+  @keyframes swivel { from { transform: perspective(1200px) rotateY(-38deg) rotateX(16deg) scale(.86); } to { transform: perspective(1200px) rotateY(-10deg) rotateX(4deg) scale(1); } }
+  @keyframes swivel-r { from { transform: perspective(1200px) rotateY(38deg) rotateX(16deg) scale(.86); } to { transform: perspective(1200px) rotateY(10deg) rotateX(4deg) scale(1); } }
+  @keyframes lift { from { transform: perspective(900px) rotateX(24deg) translateY(40px); opacity: .3; } }
+  @supports (animation-timeline: view()) {
+    .show .phone { animation: swivel linear both; animation-timeline: view(); animation-range: entry 0% cover 45%; }
+    .show.flip .phone { animation-name: swivel-r; }
+    .card, .compare .row, .timeline li, .steps li, .faq details, .panel { animation: lift linear both; animation-timeline: view(); animation-range: entry 0% entry 75%; }
+    .timeline .card { animation: none; }
+  }
+
+  /* Reacciones al pasar el ratón */
+  @media (hover: hover) and (pointer: fine) {
+    .card, .steps li { transition: translate .25s ease, box-shadow .25s ease, border-color .25s ease; }
+    .card:hover, .steps li:hover { translate: 0 -6px; box-shadow: var(--shadow); border-color: var(--accent); }
+    .btn-wa:hover { translate: 0 -2px; }
+  }
+  .timeline li.alarm time { animation: pulse 2.2s ease-out infinite; }
+  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(194, 24, 47, .55); } 80%, 100% { box-shadow: 0 0 0 14px rgba(194, 24, 47, 0); } }
+
+  /* Quien pide menos movimiento ve la página quieta. */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+  /* ===== Fondo de alta definición ===== */
+  /* Portada: luces que se mueven despacio, piso de cuadrícula en perspectiva que avanza, la red neuronal y un grano fino de película. */
+  .hero { background: linear-gradient(180deg, #0B1230 0%, #0E1840 55%, #101C4C 100%); }
+  .aurora, .floor, .grain { position: absolute; pointer-events: none; z-index: 0; }
+  .aurora { inset: -25%; filter: blur(70px); }
+  .aurora::before, .aurora::after { content: ""; position: absolute; border-radius: 50%; }
+  .aurora::before { width: 60vw; height: 60vw; max-width: 980px; max-height: 980px; right: 8%; top: 4%; background: radial-gradient(closest-side, rgba(56, 94, 245, .85), rgba(56, 94, 245, 0)); animation: drift-a 24s ease-in-out infinite alternate; }
+  .aurora::after { width: 46vw; height: 46vw; max-width: 760px; max-height: 760px; left: 10%; bottom: 6%; background: radial-gradient(closest-side, rgba(24, 160, 200, .5), rgba(24, 160, 200, 0)); animation: drift-b 30s ease-in-out infinite alternate; }
+  @keyframes drift-a { to { translate: -14vw 12vh; scale: 1.18; } }
+  @keyframes drift-b { to { translate: 16vw -10vh; scale: .88; } }
+  .floor { left: -60%; right: -60%; bottom: -2%; height: 58%; background-image: linear-gradient(rgba(157, 178, 255, .26) 1px, transparent 1px), linear-gradient(90deg, rgba(157, 178, 255, .26) 1px, transparent 1px); background-size: 72px 72px; transform: perspective(520px) rotateX(74deg); transform-origin: 50% 100%; -webkit-mask-image: linear-gradient(to top, #000 0%, rgba(0,0,0,.6) 35%, transparent 80%); mask-image: linear-gradient(to top, #000 0%, rgba(0,0,0,.6) 35%, transparent 80%); animation: floor-run 5s linear infinite; }
+  @keyframes floor-run { to { background-position: 0 72px, 0 0; } }
+  .grain { inset: 0; opacity: .09; mix-blend-mode: overlay; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  .hero::after { content: ""; position: absolute; inset: auto 0 0; height: 160px; background: linear-gradient(to bottom, transparent, rgba(11, 18, 48, .65)); z-index: 0; pointer-events: none; }
+  .phones::before { content: ""; position: absolute; left: 10%; right: 10%; bottom: -70px; height: 120px; background: radial-gradient(closest-side, rgba(110, 140, 255, .55), transparent); filter: blur(18px); transform: translateZ(-120px); }
+
+  /* Resto de la página: una trama de puntos muy fina, como papel milimetrado. */
+  body { background-image: radial-gradient(var(--dot) 1px, transparent 1.2px); background-size: 22px 22px; background-attachment: fixed; }
+  .hero-fade { background: transparent; }
+  .band, .final { box-shadow: 0 40px 80px -40px rgba(17, 26, 61, .6); }
+  .final { background: radial-gradient(900px 420px at 50% 0%, #3556E8 0%, transparent 65%), radial-gradient(600px 300px at 90% 100%, rgba(24, 160, 200, .35), transparent 70%), var(--ink); }
+  /* ===== Pulido según Linear, Stripe, Apple y Doctoralia ===== */
+  h1, h2 { letter-spacing: -.03em; text-wrap: balance; }
+  h1 { line-height: 1.02; }
+  .section-head p, .lead { text-wrap: pretty; }
+  .topnav { display: none; }
+  @media (min-width: 900px) {
+    .topnav { display: flex; gap: 6px; margin-left: auto; margin-right: 8px; }
+    .topnav a { color: var(--on-ink-muted); text-decoration: none; font-size: 15.5px; font-weight: 700; padding: 10px 12px; border-radius: 10px; }
+    .topnav a:hover { color: #fff; background: rgba(255,255,255,.08); }
+  }
+  .statement { padding-block: 40px 16px; }
+  .statement p { font-size: clamp(2rem, 6.4vw, 4.6rem); font-weight: 700; line-height: 1.05; letter-spacing: -.035em; text-align: center; text-wrap: balance; }
+  .statement span { display: inline-block; }
+  .statement .hl { color: var(--accent); }
+  .panel-cta { margin-top: 22px; }
+  /* La red de servicios ocupa el fondo de toda la página (en lugar de la trama de puntos). */
+  .net-page { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
+  body { background-image: none; }
+  /* Al saltar desde el menú, el título no queda tapado por la barra de arriba. */
+  section[id] { scroll-margin-top: 76px; }
+</style>
+</head>
+<body>
+<canvas class="net-page" aria-hidden="true"></canvas>
+<a class="skip" href="#contenido">Saltar al contenido</a>
+
+<!-- El número de WhatsApp se pone en un solo lugar: la línea «var WHATSAPP» al final de la página. -->
+<header>
+  <div class="wrap bar">
+    <a class="logo" href="#" aria-label="RelevoMed, inicio">
+      <svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="11" fill="#1B2A5E"/><path d="M11 25a9 9 0 0 1 15-9.5" fill="none" stroke="#9DB2FF" stroke-width="3.2" stroke-linecap="round"/><path d="M29 15a9 9 0 0 1-15 9.5" fill="none" stroke="#FFFFFF" stroke-width="3.2" stroke-linecap="round"/><path d="M23.5 12.5l3 3-3.6 1.6" fill="none" stroke="#9DB2FF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M16.5 27.5l-3-3 3.6-1.6" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      RelevoMed
+    </a>
+    <nav class="topnav" aria-label="Secciones">
+      <a href="#como-funciona">Cómo funciona</a>
+      <a href="#para-quien">Para quién</a>
+      <a href="#seguridad">Seguridad</a>
+      <a href="#preguntas">Preguntas</a>
+    </nav>
+    <a class="btn btn-wa" href="#contacto" data-wa="Hola%2C%20quiero%20conocer%20RelevoMed" rel="noopener">Escríbeme</a>
+  </div>
+</header>
+
+<main id="contenido">
+  <div class="hero">
+    <div class="aurora" aria-hidden="true"></div>
+    <div class="floor" aria-hidden="true"></div>
+    <canvas class="neuro" aria-hidden="true"></canvas>
+    <div class="grain" aria-hidden="true"></div>
+    <div class="wrap hero-grid">
+      <div>
+        <span class="eyebrow">Para servicios hospitalarios</span>
+        <h1>La guardia se entrega <span class="glow">sin que se pierda nada.</span></h1>
+        <p class="lead">El censo, el pase de guardia y los pendientes del servicio, en el teléfono. Todo el equipo ve lo mismo, al día.</p>
+        <div class="actions">
+          <a class="btn btn-wa" href="#contacto" data-wa="Hola%2C%20quiero%20conocer%20RelevoMed" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.6.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .1-1.3c0-.1-.2-.2-.4-.3Z"/></svg>
+            Escríbeme por WhatsApp
+          </a>
+          <a class="link" href="#como-funciona">Ver cómo funciona</a>
+        </div>
+        <p class="note">Te la muestro funcionando, con pacientes de prueba.</p>
+        <ul class="facts" aria-label="En pocas palabras">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>En español</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Funciona sin internet</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Android y navegador</li>
+        </ul>
+      </div>
+
+      <div class="phones">
+        <div class="phone back">
+          <picture>
+            <source srcset="img/ficha-oscuro.jpg 780w, img/ficha-oscuro-hd.jpg 1170w" sizes="(min-width: 980px) 420px, 92vw" media="(prefers-color-scheme: dark)">
+            <img src="img/ficha.jpg" srcset="img/ficha.jpg 780w, img/ficha-hd.jpg 1170w" sizes="(min-width: 980px) 420px, 92vw" width="780" height="1688" alt="Ficha de una paciente de prueba: Glasgow por partes, pupilas dibujadas y alertas en rojo por un Glasgow que bajó de 14 a 11.">
+          </picture>
+        </div>
+        <div class="phone front">
+          <picture>
+            <source srcset="img/censo-oscuro.jpg 780w, img/censo-oscuro-hd.jpg 1170w" sizes="(min-width: 980px) 420px, 92vw" media="(prefers-color-scheme: dark)">
+            <img src="img/censo.jpg" srcset="img/censo.jpg 780w, img/censo-hd.jpg 1170w" sizes="(min-width: 980px) 420px, 92vw" width="780" height="1688" alt="Pantalla principal de RelevoMed: pacientes, críticos y pendientes, el Glasgow de cada cama y el aviso «Requieren atención».">
+          </picture>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="hero-fade" aria-hidden="true"></div>
+
+  <section class="statement" aria-label="En pocas palabras">
+    <div class="wrap">
+      <p><span>Un solo lugar.</span> <span>Todo el equipo.</span> <span class="hl">Toda la guardia.</span></p>
+    </div>
+  </section>
+
+  <section id="problema" aria-labelledby="t-problema" style="padding-top:24px">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">El problema</span>
+        <h2 id="t-problema">El grupo de WhatsApp no es una historia clínica</h2>
+        <p>Hoy la guardia se entrega de memoria, con papelitos y mensajes que se pierden entre cientos de chats. Lo importante de cada paciente queda repartido en el teléfono de cada médico.</p>
+      </div>
+      <div class="compare">
+        <div class="row head" aria-hidden="true"><div class="cell" style="color:var(--critical)">Hoy</div><div class="cell" style="color:var(--ok)">Con RelevoMed</div></div>
+        <div class="row">
+          <div class="cell before"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg><span><span class="label-sm">Hoy</span>El pase depende de la memoria de quien entrega.</span></div>
+          <div class="cell after"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span><span class="label-sm">Con RelevoMed</span>Cada paciente tiene su pase escrito: gravedad, resumen y qué hacer si empeora.</span></div>
+        </div>
+        <div class="row">
+          <div class="cell before"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg><span><span class="label-sm">Hoy</span>Los datos del paciente quedan repartidos en chats personales.</span></div>
+          <div class="cell after"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span><span class="label-sm">Con RelevoMed</span>Todo queda en la ficha del paciente, y solo lo ve tu servicio.</span></div>
+        </div>
+        <div class="row">
+          <div class="cell before"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg><span><span class="label-sm">Hoy</span>Un deterioro se nota cuando alguien lo cuenta.</span></div>
+          <div class="cell after"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span><span class="label-sm">Con RelevoMed</span>Un Glasgow que cae se pone en rojo en la lista.</span></div>
+        </div>
+        <div class="row">
+          <div class="cell before"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg><span><span class="label-sm">Hoy</span>Los pendientes se pierden al cambiar de turno.</span></div>
+          <div class="cell after"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span><span class="label-sm">Con RelevoMed</span>Los pendientes pasan con el paciente, con quién los tiene.</span></div>
+        </div>
+        <div class="row">
+          <div class="cell before"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg><span><span class="label-sm">Hoy</span>Nadie sabe quién cambió qué, ni cuándo.</span></div>
+          <div class="cell after"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span><span class="label-sm">Con RelevoMed</span>Cada cambio queda con nombre y hora.</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="como-funciona" aria-labelledby="t-funciona">
+    <div class="wrap">
+      <div class="section-head center">
+        <span class="eyebrow">Cómo funciona</span>
+        <h2 id="t-funciona">Lo que hoy se pierde entre una guardia y otra, en un solo lugar</h2>
+        <p>Papelitos, mensajes sueltos y el pase de memoria. RelevoMed lo ordena para que todo el equipo vea lo mismo.</p>
+      </div>
+
+      <div class="show">
+        <div>
+          <span class="tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg>Toda la sala de un vistazo</span>
+          <h3 style="font-size:clamp(1.5rem,3.4vw,2rem)">Lo grave salta a la vista</h3>
+          <p class="desc">El Glasgow de cada cama en una sola gráfica. Si alguien empeora, se pone en rojo y aparece en «Requieren atención». A las 3 a. m. sabes a quién ver primero.</p>
+          <ul class="checks">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Pacientes, críticos y pendientes arriba, siempre.</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Quién está de guardia hoy.</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>«Entregar guardia» con un toque.</span></li>
+          </ul>
+        </div>
+        <div class="phone">
+          <picture>
+            <source srcset="img/censo-oscuro.jpg 780w, img/censo-oscuro-hd.jpg 1170w" sizes="(min-width: 980px) 420px, 92vw" media="(prefers-color-scheme: dark)">
+            <img src="img/censo.jpg" srcset="img/censo.jpg 780w, img/censo-hd.jpg 1170w" sizes="(min-width: 980px) 420px, 92vw" width="780" height="1688" loading="lazy" alt="Pantalla principal con el Glasgow de la sala: la cama 2 en ámbar con flecha hacia abajo y la cama 3 en rojo.">
+          </picture>
+        </div>
+      </div>
+
+      <div class="show flip">
+        <div>
+          <span class="tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="9"/></svg>Hecha por neurocirugía</span>
+          <h3 style="font-size:clamp(1.5rem,3.4vw,2rem)">El examen neurológico, dibujado</h3>
+          <p class="desc">Glasgow por partes y pupilas a escala, con la tendencia. Un cambio de 14 a 11 o una anisocoria nueva se ven sin leer una línea.</p>
+          <ul class="checks">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Drenajes, débito y PIC en la misma ficha.</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Residente a cargo y pendientes del paciente.</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Todo queda en el historial: quién, qué y cuándo.</span></li>
+          </ul>
+        </div>
+        <div class="phone">
+          <picture>
+            <source srcset="img/ficha-oscuro.jpg 780w, img/ficha-oscuro-hd.jpg 1170w" sizes="(min-width: 980px) 420px, 92vw" media="(prefers-color-scheme: dark)">
+            <img src="img/ficha.jpg" srcset="img/ficha.jpg 780w, img/ficha-hd.jpg 1170w" sizes="(min-width: 980px) 420px, 92vw" width="780" height="1688" loading="lazy" alt="Ficha de una paciente de prueba con el Glasgow por partes, pupilas de 3 y 5 milímetros y alertas en rojo.">
+          </picture>
+        </div>
+      </div>
+
+      <div class="show">
+        <div>
+          <span class="tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a3 3 0 0 1 3-3h15"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a3 3 0 0 1-3 3H3"/></svg>Pase de guardia I-PASS</span>
+          <h3 style="font-size:clamp(1.5rem,3.4vw,2rem)">Un pase claro, paciente por paciente</h3>
+          <p class="desc">Gravedad, resumen y «si pasa… entonces…». El estado clínico y el pase usan la misma escala, y si no coinciden la app avisa.</p>
+          <ul class="checks">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Quien recibe confirma con «Recibí la guardia».</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Si alguien cambia un paciente que no es suyo, el residente a cargo lo aprueba.</span></li>
+          </ul>
+        </div>
+        <div class="phone">
+          <picture>
+            <source srcset="img/pase-oscuro.jpg 780w, img/pase-oscuro-hd.jpg 1170w" sizes="(min-width: 980px) 420px, 92vw" media="(prefers-color-scheme: dark)">
+            <img src="img/pase.jpg" srcset="img/pase.jpg 780w, img/pase-hd.jpg 1170w" sizes="(min-width: 980px) 420px, 92vw" width="780" height="1688" loading="lazy" alt="Pase de guardia de una paciente de prueba: gravedad Vigilar, resumen y qué hacer si baja el Glasgow.">
+          </picture>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="t-guardia" style="padding-top:24px">
+    <div class="wrap" style="max-width:820px">
+      <div class="section-head">
+        <span class="eyebrow">Una noche cualquiera</span>
+        <h2 id="t-guardia">Una guardia con RelevoMed, hora por hora</h2>
+      </div>
+      <ol class="timeline">
+        <li class=""><time>19:00</time><div class="card"><h3>Recibes la guardia</h3><p>Lees el pase de cada paciente y confirmas con «Recibí la guardia».</p></div></li>
+        <li class=""><time>22:30</time><div class="card"><h3>Llega un ingreso</h3><p>Lo cargas en el teléfono con la cama y el diagnóstico, y aparece en la lista de todos.</p></div></li>
+        <li class="alarm"><time>03:10</time><div class="card"><h3>Algo cambia</h3><p>El Glasgow de la cama 2 baja de 14 a 11. La paciente se pone en rojo y sube a «Requieren atención».</p></div></li>
+        <li class=""><time>05:00</time><div class="card"><h3>Dictas la evolución</h3><p>Hablas y la nota queda escrita y ordenada en la ficha.</p></div></li>
+        <li class=""><time>07:40</time><div class="card"><h3>Entregas la guardia</h3><p>Revisas el pase de todos, lo corriges si hace falta y lo envías al equipo que entra.</p></div></li>
+      </ol>
+      <p class="small-note">Ejemplo con una paciente de prueba.</p>
+    </div>
+  </section>
+
+  <section id="para-quien" aria-labelledby="t-personas" style="padding-top:24px">
+    <div class="wrap" style="max-width:820px">
+      <div class="section-head">
+        <span class="eyebrow">Para todo el servicio</span>
+        <h2 id="t-personas">Cada uno ve lo que necesita</h2>
+      </div>
+      <div class="tabs" role="tablist" aria-label="Elige tu cargo"><button type="button" role="tab" id="tab-res" aria-controls="panel-res" aria-selected="true" tabindex="0">Residentes</button><button type="button" role="tab" id="tab-jef" aria-controls="panel-jef" aria-selected="false" tabindex="-1">Adjuntos y jefes</button><button type="button" role="tab" id="tab-dir" aria-controls="panel-dir" aria-selected="false" tabindex="-1">Dirección del hospital</button></div>
+        <div class="panel" role="tabpanel" id="panel-res" aria-labelledby="tab-res">
+          <h3>Menos tiempo escribiendo, más tiempo con el paciente</h3>
+          <ul class="checks"><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Tu lista de pacientes y pendientes apenas abres la app.</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Dictas la nota y queda escrita; los documentos salen listos en PDF o Word.</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>El pase de guardia se arma con lo que ya anotaste, y lo corriges antes de enviarlo.</span></li></ul>
+          <a class="btn btn-wa panel-cta" href="#contacto" data-wa="Hola%2C%20soy%20residente%20y%20quiero%20conocer%20RelevoMed" rel="noopener">Soy residente: escríbeme</a>
+        </div>
+        <div class="panel" role="tabpanel" id="panel-jef" aria-labelledby="tab-jef" hidden>
+          <h3>Todo el servicio a la vista, sin pedir reportes</h3>
+          <ul class="checks"><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>El censo completo del servicio en una sola pantalla.</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Das el visto bueno a notas y documentos desde el teléfono.</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Ves el historial de cambios y organizas el rol de guardias.</span></li></ul>
+          <a class="btn btn-wa panel-cta" href="#contacto" data-wa="Hola%2C%20soy%20adjunto%20o%20jefe%20de%20servicio%20y%20quiero%20conocer%20RelevoMed" rel="noopener">Soy adjunto o jefe: escríbeme</a>
+        </div>
+        <div class="panel" role="tabpanel" id="panel-dir" aria-labelledby="tab-dir" hidden>
+          <h3>Orden y seguridad, sin comprar equipos</h3>
+          <ul class="checks"><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Cada servicio ve solo a sus pacientes, salvo una interconsulta abierta.</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Cada persona entra con su cargo, y ve y cambia solo lo que le corresponde.</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Funciona en los teléfonos del personal: no hacen falta servidores ni equipos nuevos.</span></li></ul>
+          <a class="btn btn-wa panel-cta" href="#contacto" data-wa="Hola%2C%20trabajo%20en%20la%20direcci%C3%B3n%20de%20un%20hospital%20y%20quiero%20conocer%20RelevoMed" rel="noopener">Dirijo un hospital: escríbeme</a>
+        </div>
+    </div>
+  </section>
+
+  <section style="background:var(--bg-alt)" aria-labelledby="t-mas">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Todo incluido</span>
+        <h2 id="t-mas">Hecha para la guardia real</h2>
+        <p>Lo que un servicio necesita de verdad, sin pantallas de más.</p>
+      </div>
+      <div class="grid three four">
+        <article class="card"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v5"/></svg></div><h3>Dictado por voz</h3><p>Hablas y la nota queda escrita y ordenada.</p></article>
+        <article class="card"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 2l20 20"/><path d="M8.5 16.5a5 5 0 0 1 7 0M5 13a10 10 0 0 1 5.2-2.8M12 20h.01M16.7 11.3A10 10 0 0 1 19 13M2 8.8a15 15 0 0 1 4.2-2.7M10.7 5.1A15 15 0 0 1 22 8.8"/></svg></div><h3>Funciona sin internet</h3><p>Sigues trabajando sin señal; se comparte con el equipo al volver.</p></article>
+        <article class="card"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div><h3>Pendientes por paciente</h3><p>Con quién lo tiene y si es urgente. Se marcan hechos deslizando.</p></article>
+        <article class="card"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg></div><h3>Documentos listos</h3><p>Evolución, órdenes, epicrisis e historia en PDF o Word.</p></article>
+        <article class="card"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div><h3>Guardias y calendario</h3><p>Quién está de guardia hoy y el rol del mes.</p></article>
+        <article class="card"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><h3>Interconsultas</h3><p>Otro servicio pide opinión y la respuesta queda en la ficha.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section id="seguridad" aria-labelledby="t-seguridad">
+    <div class="wrap">
+      <div class="band">
+        <div class="section-head">
+          <span class="eyebrow" style="color:#9DB2FF">Seguridad</span>
+          <h2 id="t-seguridad">Los datos del paciente, protegidos</h2>
+          <p>La seguridad no es un extra: está en cada pantalla.</p>
+        </div>
+        <div class="grid four-up">
+          <article class="card"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div><h3>Doble candado</h3><p>Contraseña más un código de 6 dígitos, y la app se abre con tu huella.</p></article>
+          <article class="card"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg></div><h3>Cada servicio, lo suyo</h3><p>Un servicio no ve los pacientes de otro, salvo una interconsulta abierta.</p></article>
+          <article class="card"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg></div><h3>Sin publicidad</h3><p>No vendemos datos ni los usamos para anuncios.</p></article>
+          <article class="card"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6 6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3"/><path d="M8 15v1a6 6 0 0 0 6 6 6 6 0 0 0 6-6v-4"/><circle cx="20" cy="10" r="2"/></svg></div><h3>El médico decide</h3><p>Registra lo que el equipo indica. No calcula dosis ni sugiere tratamientos.</p></article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="t-empezar" style="padding-top:24px">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Cómo empezar</span>
+        <h2 id="t-empezar">En tres pasos</h2>
+        <p>Sin equipos nuevos: con los teléfonos del equipo basta.</p>
+      </div>
+      <ol class="steps">
+        <li><h3>Me escribes</h3><p>Por WhatsApp, con tu servicio y tu hospital.</p></li>
+        <li><h3>Te la muestro</h3><p>Funcionando, con pacientes de prueba, y vemos qué necesita tu servicio.</p></li>
+        <li><h3>Tu equipo empieza</h3><p>Cada médico entra con su cuenta y el censo queda listo para la guardia.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section aria-labelledby="t-autor" style="padding-top:24px">
+    <div class="wrap author">
+      <span class="eyebrow" id="t-autor">Quién la hizo</span>
+      <p class="big">Creada por un neurocirujano, para la guardia real.</p>
+      <p class="muted">RelevoMed nació en un servicio de neurocirugía venezolano, de la mano de un neurocirujano que la usa en sus propias guardias. <!-- MAQUETA: el dueño debe confirmar esta frase y si se nombra al hospital. --></p>
+    </div>
+  </section>
+
+  <section id="preguntas" aria-labelledby="t-preguntas" style="padding-top:24px">
+    <div class="wrap">
+      <div class="section-head center"><span class="eyebrow">Dudas</span><h2 id="t-preguntas">Preguntas frecuentes</h2></div>
+      <div class="faq">
+        <details><summary>¿Necesita internet?</summary><p>No para trabajar. Lo que anotas se guarda en el teléfono y se comparte con el equipo cuando vuelve la señal.</p></details>
+        <details><summary>¿En qué teléfonos funciona?</summary><p>En Android, como app, y en cualquier teléfono o computadora desde el navegador, también en iPhone.</p></details>
+        <details><summary>¿Sirve para otros servicios además de neurocirugía?</summary><p>Nació en neurocirugía, pero el censo, el pase de guardia y los pendientes sirven para cualquier servicio. Escríbeme y vemos qué necesita el tuyo.</p></details>
+        <details><summary>¿Quién puede ver los pacientes?</summary><p>Solo el personal de tu servicio con su cuenta. Otro servicio solo ve a un paciente si hay una interconsulta abierta.</p></details>
+        <details><summary>¿Calcula dosis o sugiere tratamientos?</summary><p>No. RelevoMed registra lo que el médico indica; las decisiones clínicas son siempre del equipo.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section id="contacto" aria-labelledby="t-final" style="padding-top:24px">
+    <div class="wrap">
+      <div class="final">
+        <h2 id="t-final">¿La quieres en tu servicio?</h2>
+        <p>Escríbeme y te la muestro funcionando con pacientes de prueba.</p>
+        <p class="soon" hidden>El contacto por WhatsApp estará disponible muy pronto.</p>
+        <div class="actions">
+          <a class="btn btn-wa" href="#contacto" data-wa="Hola%2C%20quiero%20conocer%20RelevoMed" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.6.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .1-1.3c0-.1-.2-.2-.4-.3Z"/></svg>
+            Escríbeme por WhatsApp
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span class="logo">
+      <svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="11" fill="#1B2A5E"/><path d="M11 25a9 9 0 0 1 15-9.5" fill="none" stroke="#9DB2FF" stroke-width="3.2" stroke-linecap="round"/><path d="M29 15a9 9 0 0 1-15 9.5" fill="none" stroke="#FFFFFF" stroke-width="3.2" stroke-linecap="round"/></svg>
+      RelevoMed
+    </span>
+    <nav aria-label="Enlaces legales">
+      <a href="#">Privacidad</a>
+      <a href="#">Términos</a>
+    </nav>
+    <p>RelevoMed es una herramienta de registro clínico: no reemplaza el criterio médico ni calcula dosis. Las imágenes muestran pacientes de prueba.</p>
+    <p>© 2026 RelevoMed</p>
+  </div>
+</footer>
+<script>
+  // Red de servicios del hospital que se conectan entre sí: es lo que hace RelevoMed.
+  // Se dibuja dos veces: en la portada (sobre azul oscuro) y fija detrás de toda la página.
+  // Neurocirugía, donde nació la app, brilla un poco más.
+  (function () {
+    var hero = document.querySelector('.hero');
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var NAMES = ['Neurocirugía', 'Emergencia', 'UCI', 'Traumatología', 'Cardiología', 'Medicina Interna',
+      'Cirugía General', 'Pediatría', 'Obstetricia', 'Neurología', 'Anestesiología', 'Imagenología',
+      'Laboratorio', 'Enfermería', 'Quirófano', 'Nefrología', 'Neumonología', 'Oncología', 'Urología', 'Hospitalización'];
+
+    function network(cv, opt) {
+      if (!cv || !cv.getContext) return;
+      var ctx = cv.getContext('2d');
+      var N = NAMES.length, nodes = [], golden = Math.PI * (3 - Math.sqrt(5)), i;
+      var seed = opt.seed || 0;
+      for (i = 0; i < N; i++) {
+        var y = 1 - ((i + 0.5) / N) * 2, r = Math.sqrt(1 - y * y), t = golden * i + seed;
+        nodes.push({ name: NAMES[i], p: [Math.cos(t) * r, y, Math.sin(t) * r], glow: 0 });
+      }
+      var E = [], seen = {};
+      nodes.forEach(function (A, ia) {
+        var near = nodes.map(function (B, ib) {
+          var dx = A.p[0] - B.p[0], dy = A.p[1] - B.p[1], dz = A.p[2] - B.p[2];
+          return [dx * dx + dy * dy + dz * dz, ib];
+        }).sort(function (x, z) { return x[0] - z[0]; });
+        for (var k = 1; k <= 3; k++) {
+          var ib = near[k][1], key = Math.min(ia, ib) + '-' + Math.max(ia, ib);
+          if (!seen[key]) { seen[key] = 1; E.push([ia, ib]); }
+        }
+      });
+      var links = [], W, H, L, col, a = opt.start || 0.5, last = 0, visible = true;
+      function readColors() { col = opt.colors(); }
+      function size() {
+        var dpr = Math.min(window.devicePixelRatio || 1, 3);
+        W = cv.clientWidth; H = cv.clientHeight;
+        cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        L = opt.layout(W, H);
+        readColors();
+      }
+      function proj(p) {
+        var c = Math.cos(a), s = Math.sin(a);
+        var x = p[0] * c + p[2] * s, z = -p[0] * s + p[2] * c;
+        var k = 2.6 / (2.6 + z);
+        return [L.cx + x * L.rx * k, L.cy + p[1] * L.ry * k, z, k];
+      }
+      function line(A, B) { ctx.beginPath(); ctx.moveTo(A[0], A[1]); ctx.lineTo(B[0], B[1]); ctx.stroke(); }
+      function halo(x, y, rad, alpha, rgb) {
+        var g = ctx.createRadialGradient(x, y, 0, x, y, rad);
+        g.addColorStop(0, 'rgba(' + rgb + ',' + alpha.toFixed(3) + ')');
+        g.addColorStop(1, 'rgba(' + rgb + ',0)');
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, rad, 0, 6.2832); ctx.fill();
+      }
+      function frame(now) {
+        ctx.clearRect(0, 0, W, H);
+        var Q = nodes.map(function (n) { return proj(n.p); });
+        ctx.lineWidth = 1;
+        E.forEach(function (e) {
+          var A = Q[e[0]], B = Q[e[1]], d = (2 - (A[2] + B[2])) / 4;
+          ctx.strokeStyle = 'rgba(' + col.line + ',' + ((0.05 + d * 0.15) * col.k * Math.min(opt.dim(A[0], W), opt.dim(B[0], W))).toFixed(3) + ')';
+          line(A, B);
+        });
+        if (!reduce && now - last > (opt.every || 600) && links.length < 5) {
+          last = now;
+          var i1 = (Math.random() * N) | 0, i2 = (Math.random() * N) | 0;
+          if (Math.random() < 0.35) i1 = 0;
+          if (i1 !== i2) links.push({ a: i1, b: i2, t: 0 });
+        }
+        links = links.filter(function (Lk) {
+          Lk.t += 0.011;
+          if (Lk.t > 2) return false;
+          var A = Q[Lk.a], B = Q[Lk.b], grow = Math.min(1, Lk.t), fade = Lk.t > 1 ? 2 - Lk.t : 1;
+          var f = Math.min(opt.dim(A[0], W), opt.dim(B[0], W)) * col.k;
+          var ex = A[0] + (B[0] - A[0]) * grow, ey = A[1] + (B[1] - A[1]) * grow;
+          var g = ctx.createLinearGradient(A[0], A[1], ex, ey);
+          g.addColorStop(0, 'rgba(' + col.hub + ',' + (0.12 * fade * f).toFixed(3) + ')');
+          g.addColorStop(1, 'rgba(' + col.spark + ',' + (0.9 * fade * f).toFixed(3) + ')');
+          ctx.strokeStyle = g; ctx.lineWidth = 1.7; line(A, [ex, ey]);
+          if (Lk.t < 1) halo(ex, ey, 10, 0.95 * f, col.spark);
+          nodes[Lk.a].glow = Math.max(nodes[Lk.a].glow, fade);
+          if (Lk.t >= 1) nodes[Lk.b].glow = Math.max(nodes[Lk.b].glow, fade);
+          return true;
+        });
+        var order = Q.map(function (q, k) { return k; }).sort(function (x, z) { return Q[z][2] - Q[x][2]; });
+        order.forEach(function (k) {
+          var q = Q[k], n = nodes[k], d = (1 - q[2]) / 2, f = opt.dim(q[0], W) * col.k, hub = k === 0, gl = n.glow;
+          var rad = (hub ? 5.5 : 3.4) * q[3];
+          if (gl > 0.05 || hub) halo(q[0], q[1], rad * 5, (hub ? 0.45 : 0.4 * gl) * f, hub ? col.hub : col.line);
+          ctx.fillStyle = 'rgba(' + (hub ? col.hub : col.line) + ',' + Math.min(1, (0.35 + d * 0.6 + gl * 0.3) * f).toFixed(3) + ')';
+          ctx.beginPath(); ctx.arc(q[0], q[1], rad, 0, 6.2832); ctx.fill();
+          var fs = Math.round((hub ? 16 : 13) * q[3] * (opt.small ? 0.92 : 1));
+          ctx.font = '700 ' + fs + 'px "Atkinson Hyperlegible", system-ui, sans-serif';
+          ctx.fillStyle = 'rgba(' + (hub ? col.hub : col.text) + ',' + Math.min(1, (0.22 + d * 0.55 + gl * 0.4 + (hub ? 0.2 : 0)) * f * col.label).toFixed(3) + ')';
+          ctx.fillText(n.name, q[0] + rad + 7, q[1] + fs * 0.35);
+          n.glow *= 0.965;
+        });
+      }
+      function loop(now) {
+        if (visible && !document.hidden) { a += opt.speed || 0.0016; frame(now); }
+        window.requestAnimationFrame(loop);
+      }
+      size(); frame(0);
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { frame(0); });
+      window.addEventListener('resize', function () { size(); frame(0); });
+      var mq = window.matchMedia('(prefers-color-scheme: dark)');
+      if (mq.addEventListener) mq.addEventListener('change', function () { readColors(); frame(0); });
+      if (!reduce) {
+        window.requestAnimationFrame(loop);
+        if (opt.watch && 'IntersectionObserver' in window) new IntersectionObserver(function (en) { visible = en[0].isIntersecting; }).observe(opt.watch);
+      }
+    }
+
+    // 1) Portada: sobre azul oscuro, alrededor de los teléfonos; tenue detrás del título.
+    network(hero && hero.querySelector('.neuro'), {
+      watch: hero,
+      layout: function (W, H) {
+        var m = W < 980;
+        return { cx: m ? W * 0.5 : W * 0.7, cy: m ? H * 0.46 : H * 0.5, rx: m ? W * 0.62 : W * 0.33, ry: m ? H * 0.42 : H * 0.44 };
+      },
+      dim: function (x, W) { return W < 980 ? 0.3 : Math.max(0.06, Math.min(1, (x / W - 0.42) / 0.12)); },
+      colors: function () {
+        var m = window.innerWidth < 980;
+        return { line: '157,178,255', text: '214,224,255', hub: '110,231,255', spark: '255,255,255', k: 1, label: m ? 0.55 : 1 };
+      },
+      small: window.innerWidth < 980
+    });
+
+    // 2) Todo el fondo de la página: fija, muy suave, con los colores del tema (claro u oscuro).
+    var page = document.querySelector('.net-page');
+    network(page, {
+      seed: 1.3, start: 2.1, speed: 0.0011, every: 900,
+      layout: function (W, H) { return { cx: W * 0.5, cy: H * 0.52, rx: W * (W < 980 ? 0.7 : 0.52), ry: H * 0.44 }; },
+      dim: function () { return 1; },
+      colors: function () {
+        var cs = getComputedStyle(document.documentElement);
+        var net = cs.getPropertyValue('--net').trim() || '36, 70, 200';
+        var hub = cs.getPropertyValue('--net-hub').trim() || '0, 132, 160';
+        var lab = parseFloat(cs.getPropertyValue('--net-text')) || 0.34;
+        return { line: net, text: net, hub: hub, spark: hub, k: 0.65, label: lab };
+      },
+      small: window.innerWidth < 980
+    });
+    // Los teléfonos de la portada se inclinan siguiendo el ratón.
+    var ph = hero.querySelector('.phones');
+    if (ph && !reduce && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+      hero.addEventListener('pointermove', function (ev) {
+        var b = hero.getBoundingClientRect();
+        var x = (ev.clientX - b.left) / b.width - 0.5, y = (ev.clientY - b.top) / b.height - 0.5;
+        ph.style.setProperty('--ry', (x * 16).toFixed(2) + 'deg');
+        ph.style.setProperty('--rx', (-y * 10).toFixed(2) + 'deg');
+      });
+      hero.addEventListener('pointerleave', function () {
+        ph.style.setProperty('--ry', '0deg'); ph.style.setProperty('--rx', '0deg');
+      });
+    }
+  })();
+</script>
+<script>
+  // Número de WhatsApp: código del país y número, sin «+» ni espacios (ej.: 584141234567).
+  // Mientras esté vacío, los botones bajan al final de la página y avisan que el contacto llega pronto.
+  var WHATSAPP = '';
+  (function () {
+    var links = document.querySelectorAll('a[data-wa]');
+    if (WHATSAPP) {
+      Array.prototype.forEach.call(links, function (a) { a.href = 'https://wa.me/' + WHATSAPP + '?text=' + a.getAttribute('data-wa'); a.target = '_blank'; });
+    } else {
+      var soon = document.querySelector('#contacto .soon');
+      if (soon) soon.hidden = false;
+    }
+  })();
+</script>
+<script>
+  // Pestañas «Cada uno ve lo que necesita». Sin JavaScript se ve la primera.
+  (function () {
+    var tabs = Array.prototype.slice.call(document.querySelectorAll('[role="tab"]'));
+    function show(tab, focus) {
+      tabs.forEach(function (t) {
+        var on = t === tab;
+        t.setAttribute('aria-selected', on ? 'true' : 'false');
+        t.tabIndex = on ? 0 : -1;
+        document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
+      });
+      if (focus) tab.focus();
+    }
+    tabs.forEach(function (t, i) {
+      t.addEventListener('click', function () { show(t); });
+      t.addEventListener('keydown', function (e) {
+        var n = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: tabs.length - 1 }[e.key];
+        if (n === undefined) return;
+        e.preventDefault();
+        show(tabs[(n + tabs.length) % tabs.length], true);
+      });
+    });
+  })();
+</script>
+</body>
+</html>
