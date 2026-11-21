@@ -32,12 +32,14 @@
     --wa: #0F7D43; --wa-hover: #0B6A38; /* verde un poco más oscuro: el texto blanco se lee bien (contraste 5:1) */
     --frame: #0B0F1C; --dot: rgba(22, 32, 28, .07); --net: 36, 70, 200; --net-hub: 0, 132, 160; --net-text: 0.26; --shadow: 0 30px 60px -28px rgba(17, 26, 61, .55);
     --radius: 20px; --max: 1120px;
+    --bar: #3A4440; --bar-warn: #9A4F00; --bar-crit: #C2182F;
   }
   @media (prefers-color-scheme: dark) {
     :root {
       --bg: #0A0D16; --bg-alt: #0E1220; --card: #121725; --text: #E9ECF5; --muted: #A0A8BE; --border: #232A3D;
       --accent: #9DB2FF; --accent-bg: #1A2350; --ink: #070A14; --ink-2: #141C3A;
       --critical: #FF7D8C; --ok: #6AD59A; --frame: #000; --dot: rgba(233, 236, 245, .05); --net: 157, 178, 255; --net-hub: 110, 231, 255; --net-text: 0.4; --shadow: 0 30px 60px -28px rgba(0,0,0,.9);
+      --bar: #7C879C; --bar-warn: #F2A93B; --bar-crit: #FF7D8C;
     }
   }
   * { box-sizing: border-box; }
@@ -138,6 +140,49 @@
   .timeline .card { padding: 18px 20px; }
   .timeline li.alarm .card { border-color: var(--critical); border-width: 2px; }
   .small-note { font-size: 14px; color: var(--muted); margin-top: 14px; }
+
+  /* Demostración: la pantalla principal con pacientes de prueba (se toca una cama) */
+  .demo { --bh: 132px; display: grid; gap: 16px; max-width: 1000px; margin-inline: auto; }
+  .demo-board, .demo-detail { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; }
+  .demo-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 12px; }
+  .demo-head h3 { font-size: 1.2rem; }
+  .demo-head span { color: var(--muted); font-size: 15px; }
+  .demo-kpis { list-style: none; padding: 0; margin: 16px 0 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .demo-kpis li { background: var(--bg-alt); border-radius: 14px; padding: 10px 12px; font-size: 15px; font-weight: 700; color: var(--muted); display: flex; align-items: baseline; flex-wrap: wrap; gap: 0 6px; }
+  .demo-kpis b { font-size: 1.7rem; line-height: 1.1; color: var(--text); }
+  .demo-kpis .alert { box-shadow: inset 0 0 0 2px var(--critical); }
+  .demo-kpis .alert b { color: var(--critical); }
+  .demo-label { margin: 22px 0 6px; font-weight: 700; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 12px; }
+  .demo-label small { font-size: 14px; font-weight: 400; color: var(--muted); }
+  .demo-bars { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; align-items: end; }
+  .demo-bed { font: inherit; color: var(--text); background: none; border: 0; border-radius: 14px; padding: 8px 0 6px; cursor: pointer; min-height: 44px; display: grid; grid-template-rows: auto var(--bh) auto; row-gap: 6px; justify-items: center; align-items: end; transition: background-color .15s ease; }
+  .demo-bed:hover { background: var(--bg-alt); }
+  .demo-bed[aria-pressed="true"] { background: var(--accent-bg); box-shadow: 0 0 0 2px var(--accent); }
+  .demo-bed .n { font-weight: 700; font-size: 1.1rem; font-variant-numeric: tabular-nums; }
+  .demo-bed .bar { display: block; width: 100%; max-width: 62px; height: calc(var(--h) / 100 * var(--bh)); background: var(--bar); border-radius: 10px 10px 4px 4px; transition: height .7s cubic-bezier(.16, 1, .3, 1) calc(var(--i, 0) * .07s); }
+  .demo.is-pre .demo-bed .bar { height: 6px; }
+  .demo-bed .cama { font-size: 14px; font-weight: 700; color: var(--muted); white-space: nowrap; }
+  .demo-bed.warn .bar { background: var(--bar-warn); } .demo-bed.warn .n { color: var(--bar-warn); }
+  .demo-bed.crit .bar { background: var(--bar-crit); } .demo-bed.crit .n { color: var(--bar-crit); }
+  .vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .demo-detail { display: grid; align-content: start; gap: 16px; }
+  .demo-detail h3 { font-size: 1.3rem; }
+  .pill { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; font-size: 15px; border-radius: 999px; padding: 5px 14px; background: var(--bg-alt); }
+  .pill.ok { color: var(--ok); box-shadow: inset 0 0 0 1.5px var(--ok); }
+  .pill.warn { color: var(--bar-warn); box-shadow: inset 0 0 0 1.5px var(--bar-warn); }
+  .pill.crit { color: var(--bar-crit); box-shadow: inset 0 0 0 1.5px var(--bar-crit); }
+  .demo-detail dl { margin: 0; display: grid; gap: 14px; }
+  .demo-detail dt { font-size: 14px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+  .demo-detail dd { margin: 2px 0 0; font-size: 17px; }
+  .demo-cta { text-align: center; margin-top: 22px; }
+  @media (max-width: 899px) {
+    .demo { --bh: 104px; gap: 12px; }
+    .demo-board, .demo-detail { padding: 16px; }
+    .demo-kpis { margin-top: 12px; } .demo-kpis li { padding: 8px 10px; flex-direction: column; align-items: flex-start; gap: 0; } .demo-kpis b { font-size: 1.45rem; }
+    .demo-label { margin-top: 16px; } .demo-detail, .demo-detail > div { gap: 12px !important; } .demo-detail dl { gap: 10px; }
+  }
+  @media (min-width: 900px) { .demo { grid-template-columns: 1.15fr .85fr; align-items: start; } .demo-board, .demo-detail { padding: 28px; } }
+  @media (prefers-reduced-motion: reduce) { .demo-bed .bar, .demo-bed { transition: none; } }
 
   /* Para cada persona del servicio (idea de Accurx: «¿quién eres?») */
   .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
@@ -556,6 +601,46 @@
           </div>
         </div>
       </div>
+    </div>
+  </section>
+
+  <section id="demo" aria-labelledby="t-demo" style="padding-top:24px">
+    <div class="wrap">
+      <div class="section-head center">
+        <span class="eyebrow">Pruébalo aquí</span>
+        <h2 id="t-demo">Toca una cama y mira qué pasa</h2>
+        <p>Así se ve la pantalla principal cuando un paciente empeora. Es una demostración con pacientes de prueba: no hay datos reales.</p>
+      </div>
+      <div class="demo" data-demo>
+        <div class="demo-board">
+          <div class="demo-head"><h3>Sala de neurocirugía</h3><span>Guardia de prueba</span></div>
+          <ul class="demo-kpis" aria-label="Resumen de la sala">
+            <li><b>5</b> Pacientes</li>
+            <li class="alert"><b>2</b> Con alerta</li>
+            <li><b>3</b> Estables</li>
+          </ul>
+          <p class="demo-label">Glasgow de la sala <small>Toca una cama</small></p>
+          <div class="demo-bars" role="group" aria-label="Glasgow de cada cama">
+            <button type="button" class="demo-bed" data-id="1" aria-pressed="false" style="--h:100;--i:0"><span class="n"><span class="vh">Glasgow </span>15</span><span class="bar" aria-hidden="true"></span><span class="cama">Cama 1</span></button>
+            <button type="button" class="demo-bed warn" data-id="2" aria-pressed="true" style="--h:67;--i:1"><span class="n"><span class="vh">Glasgow </span>11<span aria-hidden="true">↓</span><span class="vh"> (bajó)</span></span><span class="bar" aria-hidden="true"></span><span class="cama">Cama 2</span></button>
+            <button type="button" class="demo-bed crit" data-id="3" aria-pressed="false" style="--h:34;--i:2"><span class="n"><span class="vh">Glasgow </span>5T<span class="vh"> (con tubo)</span></span><span class="bar" aria-hidden="true"></span><span class="cama">Cama 3</span></button>
+            <button type="button" class="demo-bed" data-id="4" aria-pressed="false" style="--h:100;--i:3"><span class="n"><span class="vh">Glasgow </span>15</span><span class="bar" aria-hidden="true"></span><span class="cama">Cama 4</span></button>
+            <button type="button" class="demo-bed" data-id="10" aria-pressed="false" style="--h:84;--i:4"><span class="n"><span class="vh">Glasgow </span>13</span><span class="bar" aria-hidden="true"></span><span class="cama">Cama 10</span></button>
+          </div>
+        </div>
+        <div class="demo-detail">
+          <div aria-live="polite" style="display:grid;gap:16px">
+            <h3 id="demo-t">Cama 2 · paciente de prueba</h3>
+            <p><span class="pill warn" id="demo-pill">↓ Bajó: vigilar</span></p>
+            <dl>
+              <div><dt>Glasgow</dt><dd id="demo-g">11 (antes 14)</dd></div>
+              <div><dt>Examen</dt><dd id="demo-e">Ocular 3 · Verbal 3 · Motora 5. Pupilas de 3 y 5 mm: anisocoria nueva.</dd></div>
+              <div><dt>En RelevoMed</dt><dd id="demo-r">Sube a «Requieren atención» con su texto: «Glasgow 14 → 11».</dd></div>
+            </dl>
+          </div>
+        </div>
+      </div>
+      <p class="demo-cta"><a class="btn btn-wa" href="#contacto" data-wa="Hola%2C%20quiero%20ver%20RelevoMed%20en%20mi%20servicio" rel="noopener">Quiero verla en mi servicio</a></p>
     </div>
   </section>
 
@@ -1056,6 +1141,48 @@
       hero.addEventListener('pointerleave', function () {
         ph.style.setProperty('--ry', '0deg'); ph.style.setProperty('--rx', '0deg');
       });
+    }
+  })();
+</script>
+<script>
+  // Demostración de la pantalla principal: pacientes de prueba, ningún dato real.
+  (function () {
+    var root = document.querySelector('[data-demo]');
+    if (!root) return;
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var D = {
+      '1': { cls: 'ok', pill: 'Estable', g: '15', e: 'Ocular 4 · Verbal 5 · Motora 6.', r: 'Estable, sin alertas. Queda en la lista normal.' },
+      '2': { cls: 'warn', pill: '↓ Bajó: vigilar', g: '11 (antes 14)', e: 'Ocular 3 · Verbal 3 · Motora 5. Pupilas de 3 y 5 mm: anisocoria nueva.', r: 'Sube a «Requieren atención» con su texto: «Glasgow 14 → 11».' },
+      '3': { cls: 'crit', pill: 'Crítico', g: '5T (con tubo)', e: 'Ocular 1 · Verbal: con tubo (T) · Motora 3.', r: 'Sube a «Requieren atención» y se queda arriba, en rojo.' },
+      '4': { cls: 'ok', pill: 'Estable', g: '15', e: 'Ocular 4 · Verbal 5 · Motora 6.', r: 'Estable, sin alertas. Queda en la lista normal.' },
+      '10': { cls: 'ok', pill: 'Estable', g: '13', e: 'Ocular 3 · Verbal 4 · Motora 6.', r: 'Estable, sin alertas. Queda en la lista normal.' }
+    };
+    var beds = Array.prototype.slice.call(root.querySelectorAll('.demo-bed'));
+    var t = document.getElementById('demo-t'), pill = document.getElementById('demo-pill');
+    var g = document.getElementById('demo-g'), e = document.getElementById('demo-e'), r = document.getElementById('demo-r');
+    function show(id) {
+      var d = D[id]; if (!d) return;
+      beds.forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-id') === id ? 'true' : 'false'); });
+      t.textContent = 'Cama ' + id + ' · paciente de prueba';
+      pill.className = 'pill ' + d.cls; pill.textContent = d.pill;
+      g.textContent = d.g; e.textContent = d.e; r.textContent = d.r;
+    }
+    var panel = root.querySelector('.demo-detail');
+    beds.forEach(function (b) {
+      b.addEventListener('click', function () {
+        show(b.getAttribute('data-id'));
+        // En el teléfono el detalle queda debajo: se baja lo justo para verlo.
+        var r = panel.getBoundingClientRect();
+        if (r.top > window.innerHeight - 200 || r.bottom < 100) panel.scrollIntoView({ block: 'nearest', behavior: reduce ? 'auto' : 'smooth' });
+      });
+    });
+    // Las barras crecen una vez, al llegar a la sección (sin movimiento si el usuario lo pidió).
+    if (!reduce && 'IntersectionObserver' in window) {
+      root.classList.add('is-pre');
+      var io = new IntersectionObserver(function (en) {
+        if (en[0].isIntersecting) { root.classList.remove('is-pre'); io.disconnect(); }
+      }, { threshold: 0.35 });
+      io.observe(root);
     }
   })();
 </script>
