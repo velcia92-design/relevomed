@@ -8,7 +8,11 @@
 <meta name="theme-color" content="#111A3D">
 <!-- Lo que se ve al compartir el enlace por WhatsApp. Al pasar a relevomed.com, cambiar las dos direcciones de abajo. -->
 <meta property="og:url" content="https://velcia92-design.github.io/relevomed/">
-<meta property="og:image" content="https://velcia92-design.github.io/relevomed/img/censo-hd.jpg">
+<meta property="og:image" content="https://velcia92-design.github.io/relevomed/img/compartir.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="RelevoMed: la guardia se entrega sin que se pierda nada. Pantalla principal de la app con pacientes de prueba.">
+<meta name="twitter:card" content="summary_large_image">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="es_VE">
 <meta property="og:site_name" content="RelevoMed">
@@ -25,7 +29,7 @@
     --accent: #2446C8; --accent-bg: #E6EBFB;
     --ink: #111A3D; --ink-2: #1B2A5E; --on-ink: #FFFFFF; --on-ink-muted: #C3CBEA; --ink-line: rgba(255,255,255,.14);
     --critical: #C2182F; --ok: #1A7443;
-    --wa: #128C4B; --wa-hover: #0E7340;
+    --wa: #0F7D43; --wa-hover: #0B6A38; /* verde un poco más oscuro: el texto blanco se lee bien (contraste 5:1) */
     --frame: #0B0F1C; --dot: rgba(22, 32, 28, .07); --net: 36, 70, 200; --net-hub: 0, 132, 160; --net-text: 0.26; --shadow: 0 30px 60px -28px rgba(17, 26, 61, .55);
     --radius: 20px; --max: 1120px;
   }
@@ -272,6 +276,15 @@
     .show .phone { width: min(270px, 72vw); }
   }
 
+  /* En el teléfono, las tarjetas de «Todo incluido» y «Seguridad» van con el ícono al lado: la página se hace más corta. */
+  @media (max-width: 719px) {
+    .grid .card { display: grid; grid-template-columns: 46px 1fr; column-gap: 16px; padding: 18px; }
+    .grid .card .icon { grid-row: 1 / 3; margin-bottom: 0; }
+    .grid .card h3, .grid .card p { grid-column: 2; }
+    .grid .card p { margin-top: 4px; }
+    .band .grid { gap: 10px; }
+  }
+
   /* ===== Pestañas verticales (Cómo funciona) ===== */
   .vtabs { display: grid; gap: 40px; align-items: center; }
   .vt-stage { order: -1; display: grid; justify-items: center; gap: 20px; }
@@ -352,6 +365,37 @@
   body { background-image: none; }
   /* Al saltar desde el menú, el título no queda tapado por la barra de arriba. */
   section[id] { scroll-margin-top: 76px; }
+
+  /* ===== Cerebro 3D que se abre por capas al bajar ===== */
+  /* La sección es alta; el cerebro se queda fijo en pantalla mientras bajas y cambia de capa. Fondo oscuro en los dos temas. */
+  .brain { padding: 0; color: var(--on-ink); background: radial-gradient(900px 640px at 62% 42%, #1E3392 0%, transparent 62%), linear-gradient(180deg, #0B1230 0%, #0E1840 55%, #0B1230 100%); }
+  .brain-track { position: relative; height: 920vh; }
+  .brain-stage { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; }
+  .brain-cv { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .brain-ui { position: relative; z-index: 1; height: 100%; display: flex; flex-direction: column; justify-content: space-between; padding-top: 84px; padding-bottom: 20px; pointer-events: none; }
+  .brain-head .eyebrow { color: #9DB2FF; margin-bottom: 6px; }
+  .brain-head h2 { font-size: clamp(1.55rem, 4vw, 2.6rem); }
+  .brain-card { align-self: flex-start; width: min(100%, 400px); background: rgba(9, 14, 38, .74); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border: 1px solid var(--ink-line); border-radius: 18px; padding: 14px 18px 16px; }
+  .brain-n { font-size: 13px; font-weight: 700; letter-spacing: .08em; color: #9DB2FF; font-variant-numeric: tabular-nums; }
+  .brain-title { font-size: 1.3rem; margin-top: 2px; }
+  .brain-desc { color: var(--on-ink-muted); font-size: 15.5px; margin-top: 4px; line-height: 1.4; }
+  .brain-legend { list-style: none; padding: 0; margin: 10px 0 0; display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 14px; font-weight: 700; }
+  .brain-legend:empty { display: none; }
+  .brain-legend li { display: inline-flex; align-items: center; gap: 7px; }
+  .brain-legend i { width: 12px; height: 12px; border-radius: 50%; flex: none; box-shadow: 0 0 0 2px rgba(255,255,255,.12); }
+  .brain-card .swap { transition: opacity .35s ease, translate .35s ease; }
+  .brain-card.changing .swap { opacity: 0; translate: 0 6px; }
+  .brain-dots { position: absolute; z-index: 1; right: 14px; top: 50%; transform: translateY(-50%); display: grid; gap: 10px; list-style: none; margin: 0; padding: 0; }
+  .brain-dots li { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,.25); transition: background-color .3s, transform .3s; }
+  .brain-dots li.on { background: #fff; transform: scale(1.4); }
+  .brain-load { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); margin: 0; color: var(--on-ink-muted); font-size: 15px; }
+  .brain-credit { margin: 0; padding: 14px 16px 22px; font-size: 13px; color: var(--on-ink-muted); text-align: center; }
+  .brain-credit a { color: inherit; }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+  @media (min-width: 980px) {
+    .brain-ui { padding-top: 96px; padding-bottom: 36px; }
+    .brain-dots { right: 28px; }
+  }
 </style>
 </head>
 <body>
@@ -404,14 +448,14 @@
       <div class="phones">
         <div class="phone back">
           <picture>
-            <source srcset="img/ficha-oscuro.jpg 780w, img/ficha-oscuro-hd.jpg 1170w" sizes="(min-width: 980px) 420px, 92vw" media="(prefers-color-scheme: dark)">
-            <img src="img/ficha.jpg" srcset="img/ficha.jpg 780w, img/ficha-hd.jpg 1170w" sizes="(min-width: 980px) 420px, 92vw" width="780" height="1688" alt="Ficha de una paciente de prueba: Glasgow por partes, pupilas dibujadas y alertas en rojo por un Glasgow que bajó de 14 a 11.">
+            <source srcset="img/ficha-oscuro.jpg 780w, img/ficha-oscuro-hd.jpg 1170w" sizes="(min-width: 720px) 250px, 46vw" media="(prefers-color-scheme: dark)">
+            <img src="img/ficha.jpg" srcset="img/ficha.jpg 780w, img/ficha-hd.jpg 1170w" sizes="(min-width: 720px) 250px, 46vw" width="780" height="1688" alt="Ficha de una paciente de prueba: Glasgow por partes, pupilas dibujadas y alertas en rojo por un Glasgow que bajó de 14 a 11.">
           </picture>
         </div>
         <div class="phone front">
           <picture>
-            <source srcset="img/censo-oscuro.jpg 780w, img/censo-oscuro-hd.jpg 1170w" sizes="(min-width: 980px) 420px, 92vw" media="(prefers-color-scheme: dark)">
-            <img src="img/censo.jpg" srcset="img/censo.jpg 780w, img/censo-hd.jpg 1170w" sizes="(min-width: 980px) 420px, 92vw" width="780" height="1688" alt="Pantalla principal de RelevoMed: pacientes, críticos y pendientes, el Glasgow de cada cama y el aviso «Requieren atención».">
+            <source srcset="img/censo-oscuro.jpg 780w, img/censo-oscuro-hd.jpg 1170w" sizes="(min-width: 720px) 300px, 58vw" media="(prefers-color-scheme: dark)">
+            <img src="img/censo.jpg" srcset="img/censo.jpg 780w, img/censo-hd.jpg 1170w" sizes="(min-width: 720px) 300px, 58vw" width="780" height="1688" alt="Pantalla principal de RelevoMed: pacientes, críticos y pendientes, el Glasgow de cada cama y el aviso «Requieren atención».">
           </picture>
         </div>
       </div>
@@ -605,6 +649,43 @@
         <li><h3>Tu equipo empieza</h3><p>Cada médico entra con su cuenta y el censo queda listo para la guardia.</p></li>
       </ol>
     </div>
+  </section>
+
+  <!-- Cerebro 3D por capas: modelo anatómico real (Z-Anatomy, basado en BodyParts3D). Los archivos están en 3d/ y se descargan al acercarse. -->
+  <section id="cerebro" class="brain" aria-labelledby="t-cerebro">
+    <div class="brain-track">
+      <div class="brain-stage">
+        <canvas class="brain-cv" aria-hidden="true"></canvas>
+        <p class="brain-load">Cargando el cerebro…</p>
+        <ol class="brain-dots" aria-hidden="true"><li class="on"></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li></ol>
+        <div class="wrap brain-ui">
+          <div class="brain-head">
+            <span class="eyebrow">Nació en neurocirugía</span>
+            <h2 id="t-cerebro">El cerebro, capa por capa</h2>
+          </div>
+          <div class="brain-card" aria-hidden="true">
+            <div class="swap">
+              <span class="brain-n">01 / 09</span>
+              <h3 class="brain-title">El cerebro completo</h3>
+              <p class="brain-desc">Baja y se abre, capa por capa.</p>
+              <ul class="brain-legend"></ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <ol class="sr-only">
+      <li>El cerebro completo.</li>
+      <li>Los lóbulos: frontal, parietal, temporal y occipital, con el cerebelo y el tronco encefálico.</li>
+      <li>La ínsula, bajo los opérculos frontal, parietal y temporal.</li>
+      <li>Los ventrículos: laterales, tercero, acueducto de Silvio y cuarto.</li>
+      <li>Núcleos de la base y tálamo: núcleo caudado, putamen, globo pálido y tálamo.</li>
+      <li>El sistema límbico: hipocampo, amígdala, fórnix, cuerpos mamilares e hipotálamo.</li>
+      <li>La cara medial: cuerpo calloso, septum pellucidum, cíngulo y circunvolución parahipocampal.</li>
+      <li>Tronco encefálico y cerebelo: mesencéfalo, colículos, protuberancia y bulbo raquídeo.</li>
+      <li>Todas las piezas separadas.</li>
+    </ol>
+    <p class="brain-credit">Modelo 3D adaptado de <a href="https://github.com/Z-Anatomy/Models-of-human-anatomy" rel="noopener">Z-Anatomy</a>, el atlas libre de anatomía (<a href="https://creativecommons.org/licenses/by-sa/4.0/deed.es" rel="noopener">CC BY-SA 4.0</a>), basado en BodyParts3D, © The Database Center for Life Science.</p>
   </section>
 
   <section aria-labelledby="t-autor" style="padding-top:24px">
@@ -1034,8 +1115,9 @@
 </script>
 <script>
   // Pestañas «Cada uno ve lo que necesita». Sin JavaScript se ve la primera.
+  // Solo las de esta sección: si tomara también las de «Cómo funciona», al tocar una se vaciaría la otra.
   (function () {
-    var tabs = Array.prototype.slice.call(document.querySelectorAll('[role="tab"]'));
+    var tabs = Array.prototype.slice.call(document.querySelectorAll('.tabs [role="tab"]'));
     function show(tab, focus) {
       tabs.forEach(function (t) {
         var on = t === tab;
@@ -1086,6 +1168,240 @@
     if ('IntersectionObserver' in window) new IntersectionObserver(function (e) { hold.away = !e[0].isIntersecting; sync(); }, { threshold: 0.25 }).observe(box);
     panels.forEach(function (p, k) { if (k < cur) p.classList.add('before'); });
     if (reduce) box.classList.add('paused');
+  })();
+</script>
+<script>
+  // Cerebro 3D que se abre por capas mientras bajas. Modelo anatómico real: Z-Anatomy (CC BY-SA 4.0), en 3d/.
+  // Se descarga solo cuando la persona se acerca a esta parte. Sin 3D, el texto de cada capa cambia igual.
+  (function () {
+    var sec = document.getElementById('cerebro');
+    if (!sec) return;
+    var track = sec.querySelector('.brain-track'), cv = sec.querySelector('.brain-cv'), card = sec.querySelector('.brain-card');
+    var nEl = sec.querySelector('.brain-n'), tEl = sec.querySelector('.brain-title'), dEl = sec.querySelector('.brain-desc'), lEl = sec.querySelector('.brain-legend');
+    var dots = [].slice.call(sec.querySelectorAll('.brain-dots li')), loadEl = sec.querySelector('.brain-load');
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Colores de cada zona, pensados para el fondo azul oscuro.
+    var COL = {
+      corteza: '#D9CDC4', profundoBase: '#E6D8CB', ventBase: '#BFD9E6', troncoBase: '#CFB7A5', cerebeloBase: '#D6C2B6',
+      frontal: '#5B7CFA', parietal: '#2FB5A0', temporal: '#F0A04B', occipital: '#B07CF5', insula: '#FF5F7E', surcos: '#B3A69F',
+      cerebelo: '#E9C46A', tronco: '#F28C6A', limbico: '#FF8FB1', limbicoProf: '#FF4F86', ventriculos: '#4FD6FF', basales: '#5B8CFF', diencefalo: '#3FD0B0', comisuras: '#FFC94D',
+      'cingulo': '#FF8FB1', 'parahipocampal': '#FFC2D4',
+      'hipocampo': '#FF4F86', 'amigdala': '#C77DFF', 'fornix': '#FFE3A3', 'mamilares': '#FF9E5E', 'septales': '#F7A6C8', 'estria-terminal': '#F2C4D9',
+      'ventriculo-lat': '#4FD6FF', 'ventriculo-3': '#2BA8F0', 'acueducto': '#9BEFFF', 'ventriculo-4': '#5B8CFF',
+      'caudado': '#5B8CFF', 'putamen': '#FF8A5B', 'globo-palido': '#B6E36A',
+      'talamo': '#3FD0B0', 'geniculado': '#3FD0B0', 'pineal': '#FF6FAE', 'habenula': '#A3E86E', 'hipotalamo': '#FFB454', 'optico': '#F5E6A8',
+      'cuerpo-calloso': '#FFC94D', 'septum': '#9FD8FF', 'comisura-ant': '#FFE6A0', 'comisura-hip': '#FFE6A0',
+      'mesencefalo': '#F28C6A', 'coliculo-sup': '#FFB199', 'coliculo-inf': '#E8735A', 'nucleo-rojo': '#E04848', 'pedunculo': '#F0A07A',
+      'protuberancia': '#E9A46B', 'bulbo': '#D9845B', 'piramide': '#C9764F', 'oliva': '#E7B07C'
+    };
+    // Cada capa: título, frase corta y leyenda [nombre, color].
+    var STAGES = [
+      { t: 'El cerebro completo', d: 'Baja y se abre, capa por capa.', l: [] },
+      { t: 'Los lóbulos', d: 'Cada color es un lóbulo.', l: [['Frontal', 'frontal'], ['Parietal', 'parietal'], ['Temporal', 'temporal'], ['Occipital', 'occipital'], ['Cerebelo', 'cerebelo'], ['Tronco encefálico', 'tronco']] },
+      { t: 'La ínsula', d: 'Escondida bajo los opérculos frontal, parietal y temporal.', l: [['Ínsula', 'insula']] },
+      { t: 'Los ventrículos', d: 'Las cavidades por donde circula el líquido cefalorraquídeo.', l: [['Ventrículos laterales', 'ventriculo-lat'], ['Tercer ventrículo', 'ventriculo-3'], ['Acueducto de Silvio', 'acueducto'], ['Cuarto ventrículo', 'ventriculo-4']] },
+      { t: 'Núcleos de la base y tálamo', d: 'En lo profundo de cada hemisferio.', l: [['Núcleo caudado', 'caudado'], ['Putamen', 'putamen'], ['Globo pálido', 'globo-palido'], ['Tálamo', 'talamo']] },
+      { t: 'El sistema límbico', d: 'Hipocampo, fórnix y cuerpos mamilares, junto a la amígdala.', l: [['Hipocampo', 'hipocampo'], ['Amígdala', 'amigdala'], ['Fórnix', 'fornix'], ['Cuerpos mamilares', 'mamilares'], ['Hipotálamo', 'hipotalamo']] },
+      { t: 'La cara medial', d: 'Al separar los hemisferios aparece el cuerpo calloso.', l: [['Cuerpo calloso', 'cuerpo-calloso'], ['Septum pellucidum', 'septum'], ['Cíngulo', 'cingulo'], ['Circunvolución parahipocampal', 'parahipocampal']] },
+      { t: 'Tronco encefálico y cerebelo', d: 'Lo que une el cerebro con la médula.', l: [['Mesencéfalo', 'mesencefalo'], ['Colículos', 'coliculo-sup'], ['Protuberancia', 'protuberancia'], ['Bulbo raquídeo', 'bulbo'], ['Cerebelo', 'cerebelo']] },
+      { t: 'Todo a la vista', d: 'Más de 200 piezas de un modelo anatómico real.', l: [['Frontal', 'frontal'], ['Parietal', 'parietal'], ['Temporal', 'temporal'], ['Occipital', 'occipital'], ['Ínsula', 'insula'], ['Límbico', 'hipocampo'], ['Núcleos de la base', 'caudado'], ['Tálamo', 'talamo'], ['Ventrículos', 'ventriculo-lat'], ['Tronco', 'tronco'], ['Cerebelo', 'cerebelo']] }
+    ];
+    var N = STAGES.length;
+
+    // Cuánto has bajado dentro de la sección: 0 al empezar, 1 al terminar.
+    function progress() {
+      var r = track.getBoundingClientRect(), total = r.height - window.innerHeight;
+      return total > 0 ? Math.min(1, Math.max(0, -r.top / total)) : 0;
+    }
+
+    // Texto de la capa.
+    var shown = -1, swapTimer = 0;
+    function fill(i) {
+      var s = STAGES[i];
+      nEl.textContent = (i < 9 ? '0' : '') + (i + 1) + ' / ' + (N < 10 ? '0' : '') + N;
+      tEl.textContent = s.t; dEl.textContent = s.d;
+      lEl.innerHTML = s.l.map(function (x) { return '<li><i style="background:' + COL[x[1]] + '"></i>' + x[0] + '</li>'; }).join('');
+    }
+    function showStage(i) {
+      if (i === shown) return;
+      var first = shown < 0; shown = i;
+      dots.forEach(function (d, k) { d.classList.toggle('on', k === i); });
+      if (first || reduce) { fill(i); return; }
+      card.classList.add('changing');
+      clearTimeout(swapTimer);
+      swapTimer = setTimeout(function () { fill(shown); card.classList.remove('changing'); }, 260);
+    }
+    function onScroll() { showStage(Math.min(N - 1, Math.floor(progress() * N))); }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+
+    // El 3D se descarga cuando la sección está cerca, y se dibuja solo mientras se ve.
+    var started = false, visibleNow = false;
+    if (!('IntersectionObserver' in window)) { start(); visibleNow = true; }
+    else {
+      new IntersectionObserver(function (en) { if (en[0].isIntersecting && !started) start(); }, { rootMargin: '1200px 0px' }).observe(sec);
+      new IntersectionObserver(function (en) { visibleNow = en[0].isIntersecting; }).observe(sec);
+    }
+    function start() {
+      started = true;
+      if (!window.THREE || !window.fetch) { loadEl.hidden = true; return; }
+      Promise.all([
+        fetch('3d/cerebro.json').then(function (r) { return r.json(); }),
+        fetch('3d/cerebro.bin').then(function (r) { return r.arrayBuffer(); })
+      ]).then(function (d) { build(d[0], d[1]); }).catch(function () { loadEl.hidden = true; });
+    }
+
+    function build(man, buf) {
+      var THREE = window.THREE, renderer;
+      try { renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: true, alpha: true }); } catch (e) { loadEl.hidden = true; return; }
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
+      var scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(30, 1, 0.05, 50);
+      scene.add(camera);
+      // Una sola luz principal que acompaña a la cámara (arriba a la izquierda), más un relleno suave.
+      var key = new THREE.DirectionalLight(0xffffff, 1.05);
+      key.position.set(-1.2, 1.6, 2.2); key.target.position.set(0, 0, -5);
+      camera.add(key); camera.add(key.target);
+      scene.add(new THREE.HemisphereLight(0xC9D6FF, 0x1A2040, 0.55));
+      var root = new THREE.Group(); scene.add(root);
+
+      // BodyParts3D mide en milímetros: x = izquierda del paciente, y negativa = adelante, z = arriba.
+      // En la escena: x = izquierda del paciente, y = arriba, z = adelante (hacia quien mira de frente).
+      var u16 = new Uint16Array(buf), V = man.vertices, mn = man.min, mx = man.max, SC = 0.01;
+      var cx = (mn[0] + mx[0]) / 2, cy = (mn[1] + mx[1]) / 2, cz = (mn[2] + mx[2]) / 2;
+      var pieces = man.piezas.map(function (pz) {
+        var n = pz.v[1], v0 = pz.v[0], pos = new Float32Array(n * 3);
+        for (var j = 0; j < n; j++) {
+          var o = (v0 + j) * 3;
+          pos[j * 3] = (mn[0] + u16[o] / 65535 * (mx[0] - mn[0]) - cx) * SC;
+          pos[j * 3 + 1] = (mn[2] + u16[o + 2] / 65535 * (mx[2] - mn[2]) - cz) * SC;
+          pos[j * 3 + 2] = -(mn[1] + u16[o + 1] / 65535 * (mx[1] - mn[1]) - cy) * SC;
+        }
+        var g = new THREE.BufferGeometry();
+        g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+        g.setIndex(new THREE.BufferAttribute(new Uint16Array(buf, (V * 3 + pz.i[0]) * 2, pz.i[1]), 1));
+        g.computeVertexNormals();
+        var mesh = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.62, metalness: 0, side: THREE.DoubleSide }));
+        root.add(mesh);
+        var c = new THREE.Vector3((pz.centro[0] - cx) * SC, (pz.centro[2] - cz) * SC, -(pz.centro[1] - cy) * SC);
+        return { id: pz.id, g: pz.grupo, side: pz.centro[0] > 3 ? 1 : pz.centro[0] < -3 ? -1 : 0, dir: c.lengthSq() ? c.clone().normalize() : c, mesh: mesh, st: [] };
+      });
+
+      // Cómo se ve cada pieza en cada capa: color, opacidad y cuánto se aparta.
+      // Grupos del modelo: lóbulos y surcos (corteza), cerebelo, tronco, ventrículos, núcleos de la base, diencéfalo,
+      // límbico profundo (hipocampo, amígdala, fórnix…) y comisuras (cuerpo calloso…).
+      var CORTEX = { frontal: 1, parietal: 1, temporal: 1, occipital: 1, insula: 1, limbico: 1, surcos: 1 };
+      var INNER = { ventriculos: 1, basales: 1, diencefalo: 1, limbicoProf: 1, comisuras: 1 };
+      var LOBE = { frontal: 1, parietal: 1, temporal: 1, occipital: 1, surcos: 1, cerebelo: 1, tronco: 1 };
+      function base(p) { return CORTEX[p.g] ? COL.corteza : COL[{ ventriculos: 'ventBase', tronco: 'troncoBase', cerebelo: 'cerebeloBase' }[p.g] || 'profundoBase']; }
+      function own(p) { return COL[p.id] || COL[p.g]; }
+      function lobe(p) { return LOBE[p.g] ? COL[p.g] : base(p); }
+      function state(k, p) {
+        var ctx = CORTEX[p.g], g = p.g, c = base(p), o = INNER[g] ? 0 : 1, d = [0, 0, 0];
+        if (k === 1 || k === 2) c = lobe(p);
+        if (k >= 2 && k <= 5) {   // opérculos abiertos: el lóbulo temporal baja y el borde frontoparietal sube
+          if (p.id === 'operc-up') d = [p.side * 0.04, 0.12, 0];
+          if (g === 'temporal') d = [p.side * 0.05, -0.13, 0];
+        }
+        if (k === 2) {
+          if (g === 'insula') c = COL.insula;
+          if (p.id === 'fisura-lateral') o = 0;
+        }
+        if (k === 3) {   // ventrículos
+          if (ctx) o = 0.1;
+          if (g === 'tronco' || g === 'cerebelo') o = 0.12;
+          if (g === 'ventriculos') { c = own(p); o = 1; }
+        }
+        if (k === 4) {   // núcleos de la base y tálamo
+          if (ctx) o = 0.07;
+          if (g === 'tronco' || g === 'cerebelo') o = 0.08;
+          if (g === 'ventriculos') { c = own(p); o = 0.18; }
+          if (g === 'basales') { c = own(p); o = p.id === 'putamen' ? 0.5 : 1; }   // putamen a medias: deja ver el globo pálido
+          if (p.id === 'talamo' || p.id === 'geniculado') { c = own(p); o = 1; }
+        }
+        if (k === 5) {   // límbico profundo
+          if (ctx) o = 0.06;
+          if (g === 'tronco' || g === 'cerebelo') o = 0.08;
+          if (g === 'ventriculos') { c = own(p); o = 0.12; }
+          if (g === 'basales' || p.id === 'talamo' || p.id === 'geniculado') { c = own(p); o = 0.15; }
+          if (g === 'limbicoProf' || p.id === 'hipotalamo') { c = own(p); o = 1; }
+        }
+        if (k === 6) {   // hemisferios separados: cara medial del izquierdo; el derecho, del lado de la cámara, queda transparente
+          if (ctx) { d = [p.side * 0.3, 0, 0]; o = p.side === -1 ? 0.08 : 1; }
+          if (g === 'limbico') c = own(p);
+          if (g === 'comisuras') { c = own(p); o = 1; }
+          if (g === 'tronco' || g === 'cerebelo') o = 0.12;
+        }
+        if (k === 7) {   // tronco y cerebelo
+          if (ctx) { d = [p.side * 0.32, 0.22, 0]; o = 0.08; }
+          if (g === 'comisuras') { d = [0, 0.22, 0]; o = 0.08; }
+          if (g === 'tronco') { c = own(p); o = 1; }
+          if (g === 'cerebelo') { c = COL.cerebelo; o = 1; d = [p.side * 0.04, -0.04, -0.16]; }
+        }
+        if (k === 8) {   // todo separado
+          d = [p.dir.x * 0.3 + p.side * 0.08, p.dir.y * 0.3, p.dir.z * 0.3];
+          c = (ctx && g !== 'limbico') ? COL[g] : g === 'cerebelo' ? COL.cerebelo : own(p);
+          o = 1;
+        }
+        return { c: new THREE.Color(c), o: o, d: new THREE.Vector3(d[0], d[1], d[2]) };
+      }
+      pieces.forEach(function (p) { for (var k = 0; k < N; k++) p.st[k] = state(k, p); });
+
+      function smooth(x) { return x * x * (3 - 2 * x); }
+      // Ángulo de la cámara en cada capa (grados): gira siempre hacia el mismo lado, del lado izquierdo al derecho.
+      // az 90 = lado izquierdo del paciente, 0 = de frente, -90 = lado derecho. z = qué tan lejos (1 = normal).
+      var CAM = [
+        { az: 100, el: 10, z: 1 }, { az: 96, el: 12, z: 1 }, { az: 88, el: 12, z: 0.95 }, { az: 70, el: 16, z: 0.95 },
+        { az: 58, el: 24, z: 0.75 }, { az: 38, el: 18, z: 0.78 }, { az: -40, el: 14, z: 1.08 }, { az: -80, el: 8, z: 0.95 }, { az: -112, el: 18, z: 1.3 }
+      ];
+      var view = { az: 100, el: 10, z: 1 };
+      // Al entrar en cada capa, la mitad del tramo es el cambio y la otra mitad se queda quieta para mirarla.
+      function apply(p01) {
+        var s = p01 * N, k = Math.min(N - 1, Math.floor(s)), f = s - k;
+        var t = k === 0 ? 1 : smooth(Math.min(1, f / 0.5)), a = Math.max(0, k - 1);
+        view.az = CAM[a].az + (CAM[k].az - CAM[a].az) * t;
+        view.el = CAM[a].el + (CAM[k].el - CAM[a].el) * t;
+        view.z = CAM[a].z + (CAM[k].z - CAM[a].z) * t;
+        pieces.forEach(function (p) {
+          var A = p.st[a], B = p.st[k], o = A.o + (B.o - A.o) * t, m = p.mesh, mat = m.material, tr = o < 0.99;
+          m.visible = o > 0.01;
+          mat.color.copy(A.c).lerp(B.c, t);
+          m.position.copy(A.d).lerp(B.d, t);
+          mat.opacity = o;
+          if (mat.transparent !== tr) { mat.transparent = tr; mat.depthWrite = !tr; mat.needsUpdate = true; }
+          m.renderOrder = tr ? 2 : 0;
+        });
+      }
+      // El cerebro ocupa el espacio libre: a la derecha del texto en computadora, entre el título y la tarjeta en el teléfono.
+      var DEG = Math.PI / 180, box = 400;
+      function placeCamera(now) {
+        var az = view.az * DEG + (reduce ? 0 : Math.sin(now * 0.00025) * 0.05), el = view.el * DEG;
+        var h = cv.clientHeight, dist = 1.0 * view.z * (h / 2) / ((box / 2) * Math.tan(camera.fov * DEG / 2));
+        camera.position.set(Math.sin(az) * Math.cos(el) * dist, Math.sin(el) * dist + 0.05, Math.cos(az) * Math.cos(el) * dist);
+        camera.lookAt(0, 0.05, 0);
+      }
+      function size() {
+        var w = cv.clientWidth, h = cv.clientHeight, wide = w >= 980;
+        renderer.setSize(w, h, false);
+        camera.aspect = w / h;
+        if (wide) {   // centro del cerebro a dos tercios del ancho, un poco más abajo del centro
+          box = Math.min(w * 0.55, h * 0.72);
+          camera.setViewOffset(w, h, -w * 0.16, -h * 0.03, w, h);
+        } else {      // centro entre el título (arriba) y la tarjeta (abajo)
+          box = Math.min(w * 0.92, h * 0.5);
+          camera.setViewOffset(w, h, 0, h * 0.03, w, h);
+        }
+        camera.updateProjectionMatrix();
+      }
+      function loop(now) {
+        if (visibleNow && !document.hidden) { apply(progress()); placeCamera(now); renderer.render(scene, camera); }
+        window.requestAnimationFrame(loop);
+      }
+      size();
+      window.addEventListener('resize', size);
+      loadEl.hidden = true;
+      window.requestAnimationFrame(loop);
+    }
   })();
 </script>
 </body>
