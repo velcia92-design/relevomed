@@ -41,7 +41,7 @@
     }
   }
   * { box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
+  html { scroll-behavior: smooth; scroll-padding-top: 84px; }
   @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
   body {
     margin: 0; background: var(--bg); color: var(--text);
@@ -72,7 +72,7 @@
   /* Encabezado sobre la portada oscura */
   header { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--ink) 86%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--ink-line); }
   .bar { display: flex; align-items: center; justify-content: space-between; min-height: 66px; gap: 12px; }
-  .logo { display: inline-flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.25rem; color: var(--on-ink); text-decoration: none; }
+  .logo { display: inline-flex; align-items: center; min-height: 44px; gap: 10px; font-weight: 700; font-size: 1.25rem; color: var(--on-ink); text-decoration: none; }
   .logo svg { width: 36px; height: 36px; flex: none; border-radius: 11px; box-shadow: 0 0 0 1px var(--ink-line); }
   .bar .btn { min-height: 44px; padding: 0 18px; font-size: 16px; }
 
@@ -123,7 +123,7 @@
   .compare .after svg { color: var(--ok); }
   .compare .after { font-weight: 700; }
   .compare .head { display: none; }
-  .label-sm { display: block; font-size: 12.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 2px; }
+  .label-sm { display: block; font-size: 13.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 2px; }
   .before .label-sm { color: var(--critical); }
   .after .label-sm { color: var(--ok); }
 
@@ -192,7 +192,8 @@
 
   footer { border-top: 1px solid var(--border); padding-block: 32px 44px; font-size: 15px; color: var(--muted); margin-top: 24px; }
   footer .wrap { display: grid; gap: 12px; }
-  footer nav { display: flex; gap: 20px; flex-wrap: wrap; }
+  footer nav { display: flex; gap: 8px 12px; flex-wrap: wrap; margin-inline-start: -4px; }
+  footer nav a { display: inline-flex; align-items: center; min-height: 44px; padding-inline: 4px; }
   footer .logo { color: var(--text); font-size: 1.05rem; }
   footer .logo svg { width: 28px; height: 28px; }
 
@@ -376,7 +377,7 @@
   .brain-head .eyebrow { color: #9DB2FF; margin-bottom: 6px; }
   .brain-head h2 { font-size: clamp(1.55rem, 4vw, 2.6rem); }
   .brain-card { align-self: flex-start; width: min(100%, 400px); background: rgba(9, 14, 38, .74); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border: 1px solid var(--ink-line); border-radius: 18px; padding: 14px 18px 16px; }
-  .brain-n { font-size: 13px; font-weight: 700; letter-spacing: .08em; color: #9DB2FF; font-variant-numeric: tabular-nums; }
+  .brain-n { font-size: 14px; font-weight: 700; letter-spacing: .08em; color: #9DB2FF; font-variant-numeric: tabular-nums; }
   .brain-title { font-size: 1.3rem; margin-top: 2px; }
   .brain-desc { color: var(--on-ink-muted); font-size: 15.5px; margin-top: 4px; line-height: 1.4; }
   .brain-legend { list-style: none; padding: 0; margin: 10px 0 0; display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 14px; font-weight: 700; }
@@ -389,7 +390,7 @@
   .brain-dots li { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,.25); transition: background-color .3s, transform .3s; }
   .brain-dots li.on { background: #fff; transform: scale(1.4); }
   .brain-load { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); margin: 0; color: var(--on-ink-muted); font-size: 15px; }
-  .brain-credit { margin: 0; padding: 14px 16px 22px; font-size: 13px; color: var(--on-ink-muted); text-align: center; }
+  .brain-credit { margin: 0; padding: 14px 16px 22px; font-size: 14px; line-height: 1.8; color: var(--on-ink-muted); text-align: center; }
   .brain-credit a { color: inherit; }
   .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
   @media (min-width: 980px) {
@@ -774,7 +775,7 @@
       var links = [], W, H, L, col, a = opt.start || 0.5, last = 0, visible = true;
       function readColors() { col = opt.colors(); }
       function size() {
-        var dpr = Math.min(window.devicePixelRatio || 1, 3);
+        var dpr = Math.min(window.devicePixelRatio || 1, opt.maxDpr || 3);
         W = cv.clientWidth; H = cv.clientHeight;
         cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -1028,10 +1029,10 @@
       small: window.innerWidth < 980
     });
 
-    // 2) Todo el fondo de la página: fija, muy suave, con los colores del tema (claro u oscuro).
+    // 2) Todo el fondo de la página: fija y muy suave, para que no compita con la lectura (nombres casi invisibles, menos brillo, menos resolución = menos batería).
     var page = document.querySelector('.net-page');
     network(page, {
-      seed: 1.3, start: 2.1, speed: 0.0011, every: 900,
+      seed: 1.3, start: 2.1, speed: 0.0011, every: 1400, maxDpr: 1.5,
       layout: function (W, H) { return { cx: W * 0.5, cy: H * 0.52, rx: W * (W < 980 ? 0.7 : 0.52), ry: H * 0.44 }; },
       dim: function () { return 1; },
       colors: function () {
@@ -1039,7 +1040,7 @@
         var net = cs.getPropertyValue('--net').trim() || '36, 70, 200';
         var hub = cs.getPropertyValue('--net-hub').trim() || '0, 132, 160';
         var lab = parseFloat(cs.getPropertyValue('--net-text')) || 0.34;
-        return { line: net, text: net, hub: hub, spark: hub, k: 0.65, label: lab };
+        return { line: net, text: net, hub: hub, spark: hub, k: 0.5, label: lab * 0.4 };
       },
       small: window.innerWidth < 980
     });
