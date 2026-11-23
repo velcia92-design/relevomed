@@ -18,6 +18,21 @@
 <meta property="og:site_name" content="RelevoMed">
 <meta property="og:title" content="RelevoMed · El estado de tu paciente, al día">
 <meta property="og:description" content="El censo, el pase de guardia y los pendientes de cada servicio del hospital, en el teléfono. Todo el equipo ve lo mismo, al día.">
+<link rel="canonical" href="https://velcia92-design.github.io/relevomed/">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "RelevoMed",
+  "description": "El censo, el pase de guardia y los pendientes de cada servicio del hospital, en el teléfono. Todo el equipo ve lo mismo, al día.",
+  "applicationCategory": "HealthApplication",
+  "operatingSystem": "Android, iOS, Web",
+  "inLanguage": "es",
+  "url": "https://velcia92-design.github.io/relevomed/",
+  "image": "https://velcia92-design.github.io/relevomed/img/compartir.jpg",
+  "featureList": "Censo de pacientes, pase de guardia, pendientes, interconsultas, dictado por voz, funciona sin internet"
+}
+</script>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='11' fill='%231B2A5E'/%3E%3Cpath d='M11 25a9 9 0 0 1 15-9.5' fill='none' stroke='%239DB2FF' stroke-width='3.2' stroke-linecap='round'/%3E%3Cpath d='M29 15a9 9 0 0 1-15 9.5' fill='none' stroke='%23fff' stroke-width='3.2' stroke-linecap='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -175,6 +190,10 @@
   .demo-detail dt { font-size: 14px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
   .demo-detail dd { margin: 2px 0 0; font-size: 17px; }
   .demo-cta { text-align: center; margin-top: 22px; }
+
+  /* Video de demostración: la app real, en vertical. */
+  .video-phone { width: min(320px, 80vw); margin-inline: auto; background: var(--frame); border-radius: 46px; padding: 11px; box-shadow: var(--shadow), inset 0 0 0 1px rgba(255,255,255,.08); }
+  .video-phone video { display: block; width: 100%; border-radius: 36px; background: #000; aspect-ratio: 9 / 16; object-fit: cover; }
   @media (max-width: 899px) {
     .demo { --bh: 104px; gap: 12px; }
     .demo-board, .demo-detail { padding: 16px; }
@@ -396,11 +415,43 @@
   h1 { line-height: 1.02; }
   .section-head p, .lead { text-wrap: pretty; }
   .topnav { display: none; }
+  .topnav a.is-current { color: #fff; box-shadow: inset 0 -2px 0 #9DB2FF; }
   @media (min-width: 900px) {
     .topnav { display: flex; gap: 6px; margin-left: auto; margin-right: 8px; }
     .topnav a { color: var(--on-ink-muted); text-decoration: none; font-size: 15.5px; font-weight: 700; padding: 10px 12px; border-radius: 10px; }
     .topnav a:hover { color: #fff; background: rgba(255,255,255,.08); }
   }
+  /* Selector de idioma: ES · EN · FR */
+  .lang { display: inline-flex; gap: 2px; }
+  .lang a { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; padding-inline: 8px; border-radius: 10px; font-weight: 700; font-size: 14px; letter-spacing: .04em; text-decoration: none; }
+  .lang a[aria-current="true"] { cursor: default; }
+  .lang-bar { display: none; }
+  .lang-bar a { color: var(--on-ink-muted); }
+  .lang-bar a:hover { color: #fff; background: rgba(255,255,255,.08); }
+  .lang-bar a[aria-current="true"], .lang-menu a[aria-current="true"] { color: #fff; box-shadow: inset 0 -2px 0 #9DB2FF; }
+  .lang-menu { margin: 6px 16px 0; }
+  .lang-menu a { color: var(--on-ink-muted); }
+  .lang-pie { margin-inline-start: -8px; }
+  .lang-pie a { color: var(--muted); }
+  .lang-pie a[aria-current="true"] { color: var(--text); box-shadow: inset 0 -2px 0 currentColor; }
+  @media (min-width: 900px) { .lang-bar { display: inline-flex; margin-right: 8px; } }
+  /* Menú del teléfono: aparece con el botón de hamburguesa, solo en pantallas chicas. */
+  .nav-toggle { display: none; }
+  @media (max-width: 899px) {
+    .bar .btn { display: none; }
+    .nav-toggle { display: inline-flex; width: 48px; height: 48px; flex: none; flex-direction: column; align-items: center; justify-content: center; gap: 5px; background: rgba(255,255,255,.08); border: 1px solid var(--ink-line); border-radius: 12px; cursor: pointer; }
+    .nav-toggle-bar { width: 20px; height: 2px; border-radius: 2px; background: var(--on-ink); transition: transform .25s ease, opacity .25s ease; }
+    .nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(2) { opacity: 0; }
+    .nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+    .menu-movil { position: absolute; top: 100%; left: 0; right: 0; background: color-mix(in srgb, var(--ink) 94%, transparent); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); border-bottom: 1px solid var(--ink-line); box-shadow: 0 30px 40px -20px rgba(0,0,0,.55); }
+    .menu-movil-nav { display: grid; padding: 8px 16px 12px; }
+    .menu-movil-nav a { display: flex; align-items: center; min-height: 54px; padding: 0 6px; color: var(--on-ink); text-decoration: none; font-weight: 700; font-size: 1.05rem; border-top: 1px solid var(--ink-line); }
+    .menu-movil-nav a:first-child { border-top: 0; }
+    .menu-movil-nav a.is-current { color: #B4C3FF; }
+    .menu-movil .btn { margin: 4px 16px 18px; width: calc(100% - 32px); }
+  }
+  @media (min-width: 900px) { .nav-toggle, .menu-movil { display: none !important; } }
   .statement { padding-block: 40px 16px; }
   .statement p { font-size: clamp(2rem, 6.4vw, 4.6rem); font-weight: 700; line-height: 1.05; letter-spacing: -.035em; text-align: center; text-wrap: balance; }
   .statement span { display: inline-block; }
@@ -461,7 +512,24 @@
       <a href="#seguridad">Seguridad</a>
       <a href="#preguntas">Preguntas</a>
     </nav>
-    <a class="btn btn-wa" href="#contacto" data-wa="Hola%2C%20quiero%20conocer%20RelevoMed" rel="noopener">Escríbeme</a>
+    <div class="lang lang-bar" role="group" aria-label="Idioma / Language / Langue"><a href="./" lang="es" hreflang="es" aria-current="true">ES</a><a href="en/" lang="en" hreflang="en">EN</a><a href="fr/" lang="fr" hreflang="fr">FR</a></div>
+    <a class="btn btn-wa bar-cta" href="#contacto" data-wa="Hola%2C%20quiero%20conocer%20RelevoMed" rel="noopener">Escríbeme</a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="menu-movil" aria-label="Abrir menú">
+      <span class="nav-toggle-bar" aria-hidden="true"></span>
+      <span class="nav-toggle-bar" aria-hidden="true"></span>
+      <span class="nav-toggle-bar" aria-hidden="true"></span>
+    </button>
+  </div>
+  <div class="menu-movil" id="menu-movil" hidden>
+    <nav class="menu-movil-nav" aria-label="Secciones">
+      <a href="#como-funciona">Cómo funciona</a>
+      <a href="#para-quien">Para quién</a>
+      <a href="#seguridad">Seguridad</a>
+      <a href="#preguntas">Preguntas</a>
+      <a href="#contacto">Contacto</a>
+    </nav>
+    <div class="lang lang-menu" role="group" aria-label="Idioma / Language / Langue"><a href="./" lang="es" hreflang="es" aria-current="true">ES</a><a href="en/" lang="en" hreflang="en">EN</a><a href="fr/" lang="fr" hreflang="fr">FR</a></div>
+    <a class="btn btn-wa" href="#contacto" data-wa="Hola%2C%20quiero%20conocer%20RelevoMed" rel="noopener">Escríbeme por WhatsApp</a>
   </div>
 </header>
 
@@ -487,7 +555,7 @@
         <ul class="facts" aria-label="En pocas palabras">
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>En español</li>
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Funciona sin internet</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Android y navegador</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Sin equipos nuevos</li>
         </ul>
       </div>
 
@@ -601,6 +669,23 @@
           </div>
         </div>
       </div>
+    </div>
+  </section>
+
+  <section id="video" aria-labelledby="t-video" style="padding-top:24px">
+    <div class="wrap">
+      <div class="section-head center">
+        <span class="eyebrow">Mírala en acción</span>
+        <h2 id="t-video">La app, en 44 segundos</h2>
+        <p>Un recorrido real por RelevoMed, con pacientes de prueba.</p>
+      </div>
+      <div class="video-phone">
+        <video class="demo-video" controls playsinline preload="metadata" poster="video/demo.jpg" aria-label="Video de demostración de RelevoMed">
+          <source src="video/demo.mp4" type="video/mp4">
+          Tu navegador no reproduce este video.
+        </video>
+      </div>
+      <p class="demo-cta"><a class="btn btn-wa" href="#contacto" data-wa="Hola%2C%20quiero%20ver%20RelevoMed%20en%20mi%20servicio" rel="noopener">Quiero verla en mi servicio</a></p>
     </div>
   </section>
 
@@ -819,10 +904,11 @@
       RelevoMed
     </span>
     <nav aria-label="Enlaces legales">
-      <a href="#">Privacidad</a>
-      <a href="#">Términos</a>
+      <a href="privacidad.html">Privacidad</a>
+      <a href="terminos.html">Términos</a>
     </nav>
     <p>RelevoMed es una herramienta de registro clínico: no reemplaza el criterio médico ni calcula dosis. Las imágenes muestran pacientes de prueba.</p>
+    <div class="lang lang-pie" role="group" aria-label="Idioma / Language / Langue"><a href="./" lang="es" hreflang="es" aria-current="true">ES</a><a href="en/" lang="en" hreflang="en">EN</a><a href="fr/" lang="fr" hreflang="fr">FR</a></div>
     <p>© 2026 RelevoMed</p>
   </div>
 </footer>
@@ -1201,6 +1287,40 @@
       var soon = document.querySelector('#contacto .soon');
       if (soon) soon.hidden = false;
     }
+  })();
+</script>
+<script>
+  // Menú del teléfono: se abre y cierra con el botón, y se cierra al elegir una sección o pulsar Escape.
+  (function () {
+    var btn = document.querySelector('.nav-toggle');
+    var menu = document.getElementById('menu-movil');
+    if (!btn || !menu) return;
+    function set(open) {
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      btn.setAttribute('aria-label', open ? 'Cerrar menú' : 'Abrir menú');
+      menu.hidden = !open;
+    }
+    btn.addEventListener('click', function () { set(menu.hidden); });
+    menu.addEventListener('click', function (e) { if (e.target.closest('a')) set(false); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !menu.hidden) { set(false); btn.focus(); } });
+    window.addEventListener('resize', function () { if (window.innerWidth >= 900 && !menu.hidden) set(false); });
+  })();
+  // Marca en el menú la sección que se está viendo.
+  (function () {
+    if (!('IntersectionObserver' in window)) return;
+    var links = Array.prototype.slice.call(document.querySelectorAll('.topnav a, .menu-movil-nav a'));
+    var sections = links.map(function (a) { return document.getElementById((a.getAttribute('href') || '').slice(1)); }).filter(Boolean);
+    if (!sections.length) return;
+    var cur = '';
+    var obs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) { if (en.isIntersecting) cur = en.target.id; });
+      links.forEach(function (a) {
+        var on = a.getAttribute('href') === '#' + cur;
+        a.classList.toggle('is-current', on);
+        if (on) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current');
+      });
+    }, { rootMargin: '-45% 0px -50% 0px' });
+    sections.forEach(function (s) { obs.observe(s); });
   })();
 </script>
 <script>

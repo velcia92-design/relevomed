@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://velcia92-design.github.io/relevomed/</loc>
+    <lastmod>2026-11-22</lastmod>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="es" href="https://velcia92-design.github.io/relevomed/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://velcia92-design.github.io/relevomed/en/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://velcia92-design.github.io/relevomed/fr/"/>
+  </url>
+  <url>
+    <loc>https://velcia92-design.github.io/relevomed/en/</loc>
+    <lastmod>2026-11-22</lastmod>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="es" href="https://velcia92-design.github.io/relevomed/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://velcia92-design.github.io/relevomed/en/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://velcia92-design.github.io/relevomed/fr/"/>
+  </url>
+  <url>
+    <loc>https://velcia92-design.github.io/relevomed/fr/</loc>
+    <lastmod>2026-11-22</lastmod>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="es" href="https://velcia92-design.github.io/relevomed/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://velcia92-design.github.io/relevomed/en/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://velcia92-design.github.io/relevomed/fr/"/>
+  </url>
+</urlset>

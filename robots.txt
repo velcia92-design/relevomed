@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /3d-fuente/
+
+Sitemap: https://velcia92-design.github.io/relevomed/sitemap.xml

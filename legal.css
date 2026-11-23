@@ -1,0 +1,50 @@
+/* Estilos de las páginas legales de RelevoMed (Privacidad y Términos). */
+:root {
+  --bg: #F3F4F0; --bg-alt: #ECEEE8; --card: #FFFFFF; --text: #16201C; --muted: #55605A; --border: #DADDD5;
+  --accent: #2446C8; --accent-bg: #E6EBFB;
+  --ink: #111A3D; --ink-2: #1B2A5E; --on-ink: #FFFFFF; --on-ink-muted: #C3CBEA; --ink-line: rgba(255,255,255,.14);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0A0D16; --bg-alt: #0E1220; --card: #121725; --text: #E9ECF5; --muted: #A0A8BE; --border: #232A3D;
+    --accent: #9DB2FF; --accent-bg: #1A2350; --ink: #070A14; --ink-2: #141C3A; --on-ink-muted: #A0A8BE;
+  }
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font-family: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 17.5px; line-height: 1.6; -webkit-font-smoothing: antialiased;
+}
+a { color: var(--accent); }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 8px; }
+
+/* Encabezado */
+.sitehead { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--ink) 90%, transparent); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border-bottom: 1px solid var(--ink-line); }
+.sitehead .bar { max-width: 820px; margin: 0 auto; padding: 0 16px; min-height: 62px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.logo { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; font-weight: 700; font-size: 1.2rem; color: var(--on-ink); text-decoration: none; }
+.logo svg { width: 32px; height: 32px; flex: none; border-radius: 10px; box-shadow: 0 0 0 1px var(--ink-line); }
+.back { color: var(--on-ink-muted); text-decoration: none; font-weight: 700; font-size: 15.5px; display: inline-flex; align-items: center; min-height: 44px; gap: 6px; }
+.back:hover { color: #fff; }
+
+/* Contenido */
+.wrap { max-width: 820px; margin: 0 auto; padding: 48px 16px 80px; }
+.kicker { display: inline-block; font-size: 13.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
+h1 { font-size: clamp(1.9rem, 5vw, 2.7rem); line-height: 1.1; letter-spacing: -.02em; margin: 0 0 8px; }
+.meta { color: var(--muted); font-size: 15px; margin: 0 0 34px; }
+h2 { font-size: 1.35rem; line-height: 1.25; letter-spacing: -.01em; margin: 40px 0 12px; }
+p { margin: 0 0 16px; }
+ul { margin: 0 0 16px; padding-left: 22px; }
+li { margin-bottom: 8px; }
+li > ul { margin-top: 8px; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 22px; margin-bottom: 18px; }
+.card p:last-child, .card ul:last-child { margin-bottom: 0; }
+.aviso { background: var(--accent-bg); border: 1px solid var(--border); border-radius: 16px; padding: 18px 20px; font-size: 16px; }
+.aviso a { color: var(--accent); }
+
+/* Pie */
+footer { border-top: 1px solid var(--border); padding: 28px 16px 44px; font-size: 14.5px; color: var(--muted); }
+footer .bar { max-width: 820px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 8px 16px; justify-content: space-between; align-items: center; }
+footer a { color: var(--accent); }
+@media (max-width: 600px) { body { font-size: 16.5px; } .wrap { padding-top: 32px; } }
