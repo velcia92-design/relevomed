@@ -196,8 +196,6 @@
   .demo-cta { text-align: center; margin-top: 22px; }
 
   /* Video de demostración: la app real, en vertical. */
-  .video-phone { width: min(320px, 80vw); margin-inline: auto; background: var(--frame); border-radius: 46px; padding: 11px; box-shadow: var(--shadow), inset 0 0 0 1px rgba(255,255,255,.08); }
-  .video-phone video { display: block; width: 100%; border-radius: 36px; background: #000; aspect-ratio: 9 / 16; object-fit: cover; }
   @media (max-width: 899px) {
     .demo { --bh: 104px; gap: 12px; }
     .demo-board, .demo-detail { padding: 16px; }
@@ -673,23 +671,6 @@
           </div>
         </div>
       </div>
-    </div>
-  </section>
-
-  <section id="video" aria-labelledby="t-video" style="padding-top:24px">
-    <div class="wrap">
-      <div class="section-head center">
-        <span class="eyebrow">See it in action</span>
-        <h2 id="t-video">The app, in 44 seconds</h2>
-        <p>A real walkthrough of RelevoMed, with test patients.</p>
-      </div>
-      <div class="video-phone">
-        <video class="demo-video" controls playsinline preload="metadata" poster="../video/demo.jpg" aria-label="RelevoMed demo video">
-          <source src="../video/demo.mp4" type="../video/mp4">
-          Your browser can't play this video.
-        </video>
-      </div>
-      <p class="demo-cta"><a class="btn btn-wa" href="#contacto" data-wa="Hola%2C%20quiero%20ver%20RelevoMed%20en%20mi%20servicio" rel="noopener">I want it in my department</a></p>
     </div>
   </section>
 
