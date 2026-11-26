@@ -841,7 +841,7 @@
       <li>Tronc cérébral et cervelet : mésencéphale, colliculi, pont et bulbe rachidien.</li>
       <li>Toutes les pièces séparées.</li>
     </ol>
-    <p class="brain-credit">Modèle 3D adapté de <a href="https://github.com/Z-Anatomy/Models-of-human-anatomy" rel="noopener">Z-Anatomy</a>, l’atlas d’anatomie libre (<a href="https://creativecommons.org/licenses/by-sa/4.0/deed.es" rel="noopener">CC BY-SA 4.0</a>), basé sur BodyParts3D, © The Database Center for Life Science.</p>
+    <p class="brain-credit">Modèle 3D adapté de <a href="https://github.com/Z-Anatomy/Models-of-human-anatomy" rel="noopener">Z-Anatomy</a>, l’atlas d’anatomie libre (<a href="https://creativecommons.org/licenses/by-sa/4.0/deed.fr" rel="noopener">CC BY-SA 4.0</a>), basé sur BodyParts3D, © The Database Center for Life Science.</p>
   </section>
 
   <section aria-labelledby="t-autor" style="padding-top:24px">
@@ -1416,7 +1416,8 @@
 
     // Colores de cada zona, pensados para el fondo azul oscuro.
     var COL = {
-      corteza: '#D9CDC4', profundoBase: '#E6D8CB', ventBase: '#BFD9E6', troncoBase: '#CFB7A5', cerebeloBase: '#D6C2B6',
+      corteza: '#D9CDC4', cortezaViva: '#C78A82', surcosVivos: '#581A20',
+      profundoBase: '#E6D8CB', ventBase: '#BFD9E6', troncoBase: '#DFC5B8', cerebeloBase: '#BA7E76',
       frontal: '#5B7CFA', parietal: '#2FB5A0', temporal: '#F0A04B', occipital: '#B07CF5', insula: '#FF5F7E', surcos: '#B3A69F',
       cerebelo: '#E9C46A', tronco: '#F28C6A', limbico: '#FF8FB1', limbicoProf: '#FF4F86', ventriculos: '#4FD6FF', basales: '#5B8CFF', diencefalo: '#3FD0B0', comisuras: '#FFC94D',
       'cingulo': '#FF8FB1', 'parahipocampal': '#FFC2D4',
@@ -1487,21 +1488,95 @@
 
     function build(man, buf) {
       var THREE = window.THREE, renderer;
-      try { renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: true, alpha: true }); } catch (e) { loadEl.hidden = true; return; }
+      try { renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: true, alpha: true, powerPreference: 'high-performance' }); } catch (e) { loadEl.hidden = true; return; }
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
+      if (THREE.ACESFilmicToneMapping !== undefined) renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 0.94;
+      if (THREE.sRGBEncoding !== undefined) renderer.outputEncoding = THREE.sRGBEncoding;
+
       var scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(30, 1, 0.05, 50);
       scene.add(camera);
-      // Una sola luz principal que acompaña a la cámara (arriba a la izquierda), más un relleno suave.
-      var key = new THREE.DirectionalLight(0xffffff, 1.05);
-      key.position.set(-1.2, 1.6, 2.2); key.target.position.set(0, 0, -5);
+
+      // Entorno de estudio equilibrado para dar reflejos húmedos sin lavar los colores.
+      if (THREE.PMREMGenerator) {
+        var pmrem = new THREE.PMREMGenerator(renderer);
+        var envScene = new THREE.Scene();
+        envScene.background = new THREE.Color(0x070c1e);
+        var ep1 = new THREE.Mesh(new THREE.PlaneGeometry(8, 5), new THREE.MeshBasicMaterial({ color: new THREE.Color(1.25, 1.12, 1.05), side: THREE.DoubleSide }));
+        ep1.position.set(-4.5, 4.2, 4.5); ep1.lookAt(0, 0, 0); envScene.add(ep1);
+        var ep2 = new THREE.Mesh(new THREE.PlaneGeometry(7, 4), new THREE.MeshBasicMaterial({ color: new THREE.Color(0.65, 0.95, 1.45), side: THREE.DoubleSide }));
+        ep2.position.set(5.2, -1.5, -3.5); ep2.lookAt(0, 0, 0); envScene.add(ep2);
+        var ep3 = new THREE.Mesh(new THREE.PlaneGeometry(6, 4), new THREE.MeshBasicMaterial({ color: new THREE.Color(0.95, 0.98, 1.05), side: THREE.DoubleSide }));
+        ep3.position.set(0.5, 6.0, 1.5); ep3.lookAt(0, 0, 0); envScene.add(ep3);
+        scene.environment = pmrem.fromScene(envScene, 0.04).texture;
+        pmrem.dispose();
+      }
+
+      // Iluminación médica de 3 puntos: principal cálida controlada, contra fría y relleno suave.
+      var key = new THREE.DirectionalLight(0xFFF0E6, 0.72);
+      key.position.set(-1.3, 1.7, 2.2); key.target.position.set(0, 0, -5);
       camera.add(key); camera.add(key.target);
-      scene.add(new THREE.HemisphereLight(0xC9D6FF, 0x1A2040, 0.55));
+      var rim = new THREE.DirectionalLight(0x7DA8FF, 0.56);
+      rim.position.set(1.8, -0.5, -1.5); rim.target.position.set(0, 0, -5);
+      camera.add(rim); camera.add(rim.target);
+      scene.add(new THREE.HemisphereLight(0xFFD6CE, 0x121833, 0.34));
       var root = new THREE.Group(); scene.add(root);
+
+      var uAna = { value: 1.0 };
+      var MatCls = THREE.MeshPhysicalMaterial || THREE.MeshStandardMaterial;
+      var VSHADER_HEAD = [
+        'attribute float aSulcus;',
+        'varying float vSulcus;',
+        'varying vec3 vObjPos;'
+      ].join('\n');
+      var FSHADER_HEAD = [
+        'uniform float uAna;',
+        'varying float vSulcus;',
+        'varying vec3 vObjPos;',
+        'float rmHash(vec3 p){p=fract(p*vec3(443.897,441.423,437.195));p+=dot(p,p.yzx+19.19);return fract((p.x+p.y)*p.z);}',
+        'float rmNoise(vec3 p){vec3 i=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);return mix(mix(mix(rmHash(i),rmHash(i+vec3(1,0,0)),f.x),mix(rmHash(i+vec3(0,1,0)),rmHash(i+vec3(1,1,0)),f.x),f.y),mix(mix(rmHash(i+vec3(0,0,1)),rmHash(i+vec3(1,0,1)),f.x),mix(rmHash(i+vec3(0,1,1)),rmHash(i+vec3(1,1,1)),f.x),f.y),f.z);}',
+        'float rmVessel(vec3 p){vec3 w=p*16.0+vec3(rmNoise(p*9.0)*0.8);float r1=1.0-abs(rmNoise(w*1.15+vec3(1.7,3.2,0.5))*2.0-1.0);float r2=1.0-abs(rmNoise(w*2.35+vec3(5.1,1.3,4.4))*2.0-1.0);return clamp(smoothstep(0.962,0.995,r1)+smoothstep(0.968,0.997,r2)*0.7,0.0,1.0);}'
+      ].join('\n');
+      var FSHADER_COL = [
+        'float rmS=clamp(vSulcus,0.0,1.0);',
+        'float rmMicro=rmNoise(vObjPos*38.0);',
+        'float rmBlotch=rmNoise(vObjPos*7.5);',
+        'float rmOcc=mix(1.0,0.22,pow(rmS,0.82)*mix(0.45,1.0,uAna));',
+        'diffuseColor.rgb*=mix(0.91,1.07,rmBlotch)*mix(0.96,1.04,rmMicro);',
+        'diffuseColor.rgb=mix(diffuseColor.rgb*rmOcc,vec3(0.20,0.035,0.05),rmS*0.68*uAna);',
+        'float rmV=rmVessel(vObjPos)*uAna*smoothstep(0.08,0.65,rmS+0.18);',
+        'float rmVB=smoothstep(0.35,0.8,rmNoise(vObjPos*5.0+9.0));',
+        'diffuseColor.rgb=mix(diffuseColor.rgb,mix(vec3(0.44,0.04,0.06),vec3(0.18,0.06,0.20),rmVB*0.5),rmV*0.48);'
+      ].join('\n');
+      var FSHADER_CEREB = [
+        'float rmS=clamp(vSulcus,0.0,1.0);',
+        'float rmFolia=sin(vObjPos.y*155.0+rmNoise(vObjPos*14.0)*3.2)*0.5+0.5;',
+        'float rmOcc=mix(1.0,0.26,pow(rmS,0.85)*mix(0.45,1.0,uAna));',
+        'diffuseColor.rgb*=mix(0.84,1.06,rmFolia)*rmOcc;',
+        'diffuseColor.rgb=mix(diffuseColor.rgb,vec3(0.24,0.06,0.08),rmS*0.50*uAna);'
+      ].join('\n');
+      var FSHADER_RGH = 'roughnessFactor=clamp(roughnessFactor*mix(0.72,1.12,rmNoise(vObjPos*18.0))-clamp(vSulcus,0.0,1.0)*0.12,0.14,0.72);';
+
+      function patchMat(mat, mode) {
+        mat.customProgramCacheKey = function () { return 'brain-' + mode + '-v2'; };
+        mat.onBeforeCompile = function (sh) {
+          sh.uniforms.uAna = uAna;
+          sh.vertexShader = sh.vertexShader
+            .replace('#include <common>', '#include <common>\n' + VSHADER_HEAD)
+            .replace('#include <begin_vertex>', '#include <begin_vertex>\nvSulcus = aSulcus;\nvObjPos = position;');
+          var colCode = mode === 2 ? FSHADER_CEREB : (mode === 1 ? FSHADER_COL : 'diffuseColor.rgb*=mix(1.0,0.48,pow(clamp(vSulcus,0.0,1.0),0.9));');
+          sh.fragmentShader = sh.fragmentShader
+            .replace('#include <common>', '#include <common>\n' + FSHADER_HEAD)
+            .replace('#include <color_fragment>', '#include <color_fragment>\n' + colCode)
+            .replace('#include <roughnessmap_fragment>', '#include <roughnessmap_fragment>\n' + FSHADER_RGH);
+        };
+      }
 
       // BodyParts3D mide en milímetros: x = izquierda del paciente, y negativa = adelante, z = arriba.
       // En la escena: x = izquierda del paciente, y = arriba, z = adelante (hacia quien mira de frente).
       var u16 = new Uint16Array(buf), V = man.vertices, mn = man.min, mx = man.max, SC = 0.01;
       var cx = (mn[0] + mx[0]) / 2, cy = (mn[1] + mx[1]) / 2, cz = (mn[2] + mx[2]) / 2;
+      var CORTEX_G = { frontal: 1, parietal: 1, temporal: 1, occipital: 1, insula: 1, limbico: 1, surcos: 1 };
       var pieces = man.piezas.map(function (pz) {
         var n = pz.v[1], v0 = pz.v[0], pos = new Float32Array(n * 3);
         for (var j = 0; j < n; j++) {
@@ -1510,11 +1585,54 @@
           pos[j * 3 + 1] = (mn[2] + u16[o + 2] / 65535 * (mx[2] - mn[2]) - cz) * SC;
           pos[j * 3 + 2] = -(mn[1] + u16[o + 1] / 65535 * (mx[1] - mn[1]) - cy) * SC;
         }
+        var idxArr = new Uint16Array(buf, (V * 3 + pz.i[0]) * 2, pz.i[1]);
         var g = new THREE.BufferGeometry();
         g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-        g.setIndex(new THREE.BufferAttribute(new Uint16Array(buf, (V * 3 + pz.i[0]) * 2, pz.i[1]), 1));
+        g.setIndex(new THREE.BufferAttribute(idxArr, 1));
         g.computeVertexNormals();
-        var mesh = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.62, metalness: 0, side: THREE.DoubleSide }));
+
+        // Concavidad por vértice: detecta surcos hundidos frente a crestas de giros para dar relieve orgánico.
+        var nrm = g.attributes.normal.array, sum = new Float32Array(n * 3), cnt = new Uint16Array(n);
+        for (var ti = 0; ti < idxArr.length; ti += 3) {
+          var ia = idxArr[ti], ib = idxArr[ti + 1], ic = idxArr[ti + 2];
+          sum[ia * 3] += pos[ib * 3] + pos[ic * 3]; sum[ia * 3 + 1] += pos[ib * 3 + 1] + pos[ic * 3 + 1]; sum[ia * 3 + 2] += pos[ib * 3 + 2] + pos[ic * 3 + 2]; cnt[ia] += 2;
+          sum[ib * 3] += pos[ia * 3] + pos[ic * 3]; sum[ib * 3 + 1] += pos[ia * 3 + 1] + pos[ic * 3 + 1]; sum[ib * 3 + 2] += pos[ia * 3 + 2] + pos[ic * 3 + 2]; cnt[ib] += 2;
+          sum[ic * 3] += pos[ia * 3] + pos[ib * 3]; sum[ic * 3 + 1] += pos[ia * 3 + 1] + pos[ib * 3 + 1]; sum[ic * 3 + 2] += pos[ia * 3 + 2] + pos[ib * 3 + 2]; cnt[ic] += 2;
+        }
+        var sul = new Float32Array(n);
+        for (var k0 = 0; k0 < n; k0++) {
+          if (!cnt[k0]) continue;
+          var ax = sum[k0 * 3] / cnt[k0] - pos[k0 * 3], ay = sum[k0 * 3 + 1] / cnt[k0] - pos[k0 * 3 + 1], az = sum[k0 * 3 + 2] / cnt[k0] - pos[k0 * 3 + 2];
+          var ln = Math.sqrt(ax * ax + ay * ay + az * az) + 1e-5;
+          var dp = (ax * nrm[k0 * 3] + ay * nrm[k0 * 3 + 1] + az * nrm[k0 * 3 + 2]) / ln;
+          sul[k0] = Math.min(1, Math.max(0, (dp + 0.03) * 2.15));
+        }
+        // Dos pasadas suaves de promedio entre vecinos para degradado sedoso sin triángulos marcados.
+        var sulTmp = new Float32Array(n);
+        for (var pass = 0; pass < 2; pass++) {
+          var sSum = new Float32Array(n);
+          for (var t2 = 0; t2 < idxArr.length; t2 += 3) {
+            var a2 = idxArr[t2], b2 = idxArr[t2 + 1], c2 = idxArr[t2 + 2];
+            sSum[a2] += sul[b2] + sul[c2]; sSum[b2] += sul[a2] + sul[c2]; sSum[c2] += sul[a2] + sul[b2];
+          }
+          for (var k1 = 0; k1 < n; k1++) sulTmp[k1] = cnt[k1] ? sul[k1] * 0.4 + (sSum[k1] / cnt[k1]) * 0.6 : sul[k1];
+          sul.set(sulTmp);
+        }
+        g.setAttribute('aSulcus', new THREE.BufferAttribute(sul, 1));
+
+        var matOpts = { color: 0xffffff, roughness: 0.44, metalness: 0, side: THREE.DoubleSide };
+        if (THREE.MeshPhysicalMaterial) {
+          matOpts.clearcoat = 0.72;
+          matOpts.clearcoatRoughness = 0.18;
+          matOpts.sheen = 0.22;
+          matOpts.sheenRoughness = 0.65;
+          matOpts.sheenColor = new THREE.Color(0xFFC8C0);
+          matOpts.ior = 1.38;
+        }
+        var mat = new MatCls(matOpts);
+        var mode = pz.grupo === 'cerebelo' ? 2 : (CORTEX_G[pz.grupo] ? 1 : 0);
+        patchMat(mat, mode);
+        var mesh = new THREE.Mesh(g, mat);
         root.add(mesh);
         var c = new THREE.Vector3((pz.centro[0] - cx) * SC, (pz.centro[2] - cz) * SC, -(pz.centro[1] - cy) * SC);
         return { id: pz.id, g: pz.grupo, side: pz.centro[0] > 3 ? 1 : pz.centro[0] < -3 ? -1 : 0, dir: c.lengthSq() ? c.clone().normalize() : c, mesh: mesh, st: [] };
@@ -1531,6 +1649,10 @@
       function lobe(p) { return LOBE[p.g] ? COL[p.g] : base(p); }
       function state(k, p) {
         var ctx = CORTEX[p.g], g = p.g, c = base(p), o = INNER[g] ? 0 : 1, d = [0, 0, 0];
+        if (k === 0) {
+          if (g === 'surcos') c = COL.surcosVivos;
+          else if (ctx) c = COL.cortezaViva;
+        }
         if (k === 1 || k === 2) c = lobe(p);
         if (k >= 2 && k <= 5) {   // opérculos abiertos: el lóbulo temporal baja y el borde frontoparietal sube
           if (p.id === 'operc-up') d = [p.side * 0.04, 0.12, 0];
@@ -1592,6 +1714,7 @@
       function apply(p01) {
         var s = p01 * N, k = Math.min(N - 1, Math.floor(s)), f = s - k;
         var t = k === 0 ? 1 : smooth(Math.min(1, f / 0.5)), a = Math.max(0, k - 1);
+        uAna.value = k === 0 ? 1.0 : (k === 1 ? 1.0 - t * 0.8 : 0.2);
         view.az = CAM[a].az + (CAM[k].az - CAM[a].az) * t;
         view.el = CAM[a].el + (CAM[k].el - CAM[a].el) * t;
         view.z = CAM[a].z + (CAM[k].z - CAM[a].z) * t;
